@@ -102,6 +102,30 @@ public interface GramaticaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMetoddecl(GramaticaParser.MetoddeclContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link GramaticaParser#paramlist}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParamlist(GramaticaParser.ParamlistContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GramaticaParser#metodcall}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMetodcall(GramaticaParser.MetodcallContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GramaticaParser#comandos}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitComandos(GramaticaParser.ComandosContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GramaticaParser#comando1}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitComando1(GramaticaParser.Comando1Context ctx);
+	/**
 	 * Visit a parse tree produced by {@link GramaticaParser#escopometodo}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -181,12 +205,6 @@ public interface GramaticaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitChamarMetodo(GramaticaParser.ChamarMetodoContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link GramaticaParser#metodcall}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMetodcall(GramaticaParser.MetodcallContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code Multiplicacao}
 	 * labeled alternative in {@link GramaticaParser#term}.

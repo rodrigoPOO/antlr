@@ -161,6 +161,46 @@ public interface GramaticaListener extends ParseTreeListener {
 	 */
 	void exitMetoddecl(GramaticaParser.MetoddeclContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link GramaticaParser#paramlist}.
+	 * @param ctx the parse tree
+	 */
+	void enterParamlist(GramaticaParser.ParamlistContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GramaticaParser#paramlist}.
+	 * @param ctx the parse tree
+	 */
+	void exitParamlist(GramaticaParser.ParamlistContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link GramaticaParser#metodcall}.
+	 * @param ctx the parse tree
+	 */
+	void enterMetodcall(GramaticaParser.MetodcallContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GramaticaParser#metodcall}.
+	 * @param ctx the parse tree
+	 */
+	void exitMetodcall(GramaticaParser.MetodcallContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link GramaticaParser#comandos}.
+	 * @param ctx the parse tree
+	 */
+	void enterComandos(GramaticaParser.ComandosContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GramaticaParser#comandos}.
+	 * @param ctx the parse tree
+	 */
+	void exitComandos(GramaticaParser.ComandosContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link GramaticaParser#comando1}.
+	 * @param ctx the parse tree
+	 */
+	void enterComando1(GramaticaParser.Comando1Context ctx);
+	/**
+	 * Exit a parse tree produced by {@link GramaticaParser#comando1}.
+	 * @param ctx the parse tree
+	 */
+	void exitComando1(GramaticaParser.Comando1Context ctx);
+	/**
 	 * Enter a parse tree produced by {@link GramaticaParser#escopometodo}.
 	 * @param ctx the parse tree
 	 */
@@ -296,16 +336,6 @@ public interface GramaticaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitChamarMetodo(GramaticaParser.ChamarMetodoContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link GramaticaParser#metodcall}.
-	 * @param ctx the parse tree
-	 */
-	void enterMetodcall(GramaticaParser.MetodcallContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link GramaticaParser#metodcall}.
-	 * @param ctx the parse tree
-	 */
-	void exitMetodcall(GramaticaParser.MetodcallContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code Multiplicacao}
 	 * labeled alternative in {@link GramaticaParser#term}.

@@ -1,12 +1,16 @@
 package de.letsbuildacompiler.compiler;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import de.letsbuildacompiler.compiler.exceptions.UndeclaredVariableException;
+import de.letsbuildacompiler.compiler.exceptions.UndefinedFunction;
 import de.letsbuildacompiler.compiler.exceptions.VariableAlreadyDefinedException;
 import de.letsbuildacompiler.parser.GramaticaBaseVisitor;
 import de.letsbuildacompiler.parser.GramaticaParser.AtribuicaoContext;
@@ -31,8 +35,17 @@ import de.letsbuildacompiler.parser.GramaticaParser.TesteContext;
 public class MyVisitor extends GramaticaBaseVisitor<String> {
 
 	private Map<String, Integer> variables = new HashMap<>();
+	private final Set<String> definedFunctions;
 	private int i=0;
 	
+	public MyVisitor(Set<String> definedFuncitions) {
+		if(definedFuncitions == null){
+			this.definedFunctions = Collections.emptySet();
+			
+		}else{
+			this.definedFunctions = definedFuncitions;
+		}
+	}
 	@Override
 	public String visitPrintln(PrintlnContext ctx) {
 		return "	getstatic java/lang/System/out Ljava/io/PrintStream;\n"
@@ -150,12 +163,14 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		Map<String, Integer> alocatedVariables = variables;
 		variables = new HashMap<>();
 		
-		
+		visit(ctx.parametros);
 		String comandos = visit(ctx.comandos());
+		int numeroParam = ctx.parametros.decl.size();
 		
 		
-		
-		String resultado= ".method public static "+ctx.nomeMetodo.getText()+"()I\n" + 
+		String resultado= ".method public static "+ctx.nomeMetodo.getText()+"(";
+				resultado+=  stringRepeat("I", numeroParam);
+		resultado += ")I\n" +		
 				"	.limit stack 100\n" + 
 				"	.limit locals 100\n" +
 				(comandos == null ? "" : comandos +"\n")+				
@@ -169,7 +184,20 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	}
 	@Override
 	public String visitMetodcall(MetodcallContext ctx) {
-		return "invokestatic Gramatica/"+ctx.nomeMetodo.getText()+"()I\n";
+		if(!definedFunctions.contains(ctx.nomeMetodo.getText())){
+			throw new UndefinedFunction(ctx.nomeMetodo);
+		}
+		String args = visit(ctx.args);
+		String instrucoes = "";
+		if(args != null){
+			instrucoes += args + "\n"; 
+		}
+		
+		instrucoes +=  "invokestatic Gramatica/"+ctx.nomeMetodo.getText()+"(";
+		int numeroArg = ctx.args.exp.size();
+		instrucoes += stringRepeat("I", numeroArg);
+		instrucoes += ")I\n";
+		return instrucoes;
 
 	}
 	
@@ -198,6 +226,14 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		"  \n" + 
 		".end method";
 
+	}
+	public String stringRepeat(String param, int cont){
+		StringBuilder resultado = new StringBuilder();
+		for(int i = 0; i < cont; i++){
+			resultado.append(param);
+		}
+		return resultado.toString();
+		
 	}
 	
 }

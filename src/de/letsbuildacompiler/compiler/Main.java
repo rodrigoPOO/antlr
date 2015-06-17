@@ -1,6 +1,7 @@
 package de.letsbuildacompiler.compiler;
 
 import java.io.IOException;
+import java.util.Set;
 
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -8,7 +9,9 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.stringtemplate.v4.compiler.Bytecode.Instruction;
 
-import de.letsbuildacompiler.compiler.exceptions.ExcecaoCompilacao;
+
+
+
 import de.letsbuildacompiler.parser.GramaticaLexer;
 import de.letsbuildacompiler.parser.GramaticaParser;
 
@@ -27,17 +30,11 @@ public class Main {
 		GramaticaParser parser = new GramaticaParser(token);
 		
 		ParseTree tree = parser.teste();
-		MyVisitor visitor = new MyVisitor();
-		try {
-			visitor.visit(tree);
-			return createJasminFile(new MyVisitor().visit(tree));
+		Set<String> definedFuncitions = new VisitFunctionDefinition().visit(tree);
+		return createJasminFile(new MyVisitor(definedFuncitions).visit(tree));
 			
-		} catch (ExcecaoCompilacao e) {
-			e.printStackTrace();
-			
-			
-		}
-		return "";
+		
+		
 		
 	}
 

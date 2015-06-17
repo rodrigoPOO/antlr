@@ -185,6 +185,54 @@ public class GramaticaBaseListener implements GramaticaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterParamlist(GramaticaParser.ParamlistContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitParamlist(GramaticaParser.ParamlistContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMetodcall(GramaticaParser.MetodcallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMetodcall(GramaticaParser.MetodcallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterComandos(GramaticaParser.ComandosContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitComandos(GramaticaParser.ComandosContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterComando1(GramaticaParser.Comando1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitComando1(GramaticaParser.Comando1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterEscopometodo(GramaticaParser.EscopometodoContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -324,18 +372,6 @@ public class GramaticaBaseListener implements GramaticaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitChamarMetodo(GramaticaParser.ChamarMetodoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterMetodcall(GramaticaParser.MetodcallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitMetodcall(GramaticaParser.MetodcallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

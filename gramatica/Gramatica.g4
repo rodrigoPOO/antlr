@@ -29,8 +29,9 @@ escopoclasse: vardecl SEMICOLON
             | inicializarArranjo SEMICOLON                        
             ;
 
-/*Declaracoes*/
+/*Declaracoes*/ 
 vardecl:(INT | DOUBLE | STRING | BOOLEAN) ( LBRACKET RBRACKET )* nomeVariavel=IDENT #DeclaracaoVariaveis;
+
 
 /*Declaracao seguida de atribuicao*/
 vardeclatrib: (INT | DOUBLE | STRING | BOOLEAN | IDENT) variavel=IDENT ASSIGN valor=term #DeclararEAtribuir;//para o caso de int a = bola[2];
@@ -44,12 +45,15 @@ inicializarArranjo:(INT | DOUBLE | STRING | BOOLEAN) (LBRACKET RBRACKET)+ ASSIGN
 
 /*Declaracao Metodos*/
 //metoddecl:type=(INT | DOUBLE | STRING | BOOLEAN | VOID) ( LBRACKET RBRACKET )* nomeMetodo=IDENT ' (' ')' '{''return ' expressao ';''}';
-metoddecl:type='int' nomeMetodo=IDENT ' (' ')' '{' comandos 'return ' expressao ';''}';
+metoddecl:type='int' nomeMetodo=IDENT ' (' parametros=paramlist ')' '{' com=comandos 'return ' expressao ';''}';
 
-comandos: (comando1)*;
+paramlist: decl+=vardecl (',' decl+=vardecl)* | ;
+metodcall: nomeMetodo=IDENT '('args=listaargumento')';
+
+/*comando1 nao tem o return como producao! */
+comandos: (comando1)* | ;
 comando1: ifstatement
-    | forstatement
-    | LBRACE listacomandos RBRACE
+    | forstatement    
     | BREAK SEMICOLON
     | SEMICOLON
     | vardecl SEMICOLON
@@ -63,7 +67,8 @@ escopometodo:LPAREN parametro? RPAREN '{'comando'}';
 parametro:((INT | DOUBLE | STRING | BOOLEAN ) (LBRACKET RBRACKET)* IDENT//unico parametro
                       (COMMA (INT | DOUBLE | STRING | BOOLEAN) (LBRACKET RBRACKET)* IDENT)*);//varios parametros
 
-listaargumento:expressao ( COMMA expressao )*;
+//deve existir uma producao vazia para o caso em que não existe parametro.
+listaargumento:exp+=expressao ( COMMA exp+=expressao )* | ;
 
 comando:retorno SEMICOLON |
      ifstatement
@@ -88,8 +93,6 @@ expressao: term #Numexpr
          | esquerda=term NEQ direita=term #Diferente
          | metodcall #ChamarMetodo
          ;
-
-metodcall: nomeMetodo=IDENT '('')';
 
 term: esquerda=term SLASH esquerda=term #Divisao
    	| esquerda=term STAR esquerda=term #Multiplicacao
