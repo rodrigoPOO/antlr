@@ -12,6 +12,6 @@ public class FunctionAlreadyDefinedException extends CompileException {
 	
 	@Override
 	public String getMessage() {
-		return line + ":" + column + " Function is already defined  <" + funcName + ">";
+		return line + ":" + column + " Function is already defined <" + funcName + ">";
 	}
 }

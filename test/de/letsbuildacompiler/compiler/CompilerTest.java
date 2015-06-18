@@ -104,15 +104,15 @@ public class CompilerTest {
 		compileAndRun("println(foo());");
 
 				// evaluation performed by expected exception
-	}/*
+	}
 	@Test(expectedExceptions = FunctionAlreadyDefinedException.class,
-			expectedExceptionsMessageRegExp = "2:4 Function is already defined <kappa>")
+			expectedExceptionsMessageRegExp = "2:4 Function is already defined <x>")
 	public void compilingCode_throwsFunctioneAlreadyDefinedException_whenDefiningFunctionAlreadyDefined() throws Exception{
 		// execution
-		compileAndRun("int kappa(){return 0;}\nint kappa(){return 322;}");
+		compileAndRun("int x (){return 0;}\nint x (){return 1;}");
 
 				// evaluation performed by expected exception
-	}*/
+	}
 
 	@DataProvider
 	public Object[][] provide_code_exceptedText(){
