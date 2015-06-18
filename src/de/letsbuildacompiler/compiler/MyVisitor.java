@@ -2,13 +2,14 @@ package de.letsbuildacompiler.compiler;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import de.letsbuildacompiler.compiler.exceptions.ExcecaoTipoNaoCompativel;
 import de.letsbuildacompiler.compiler.exceptions.UndeclaredVariableException;
 import de.letsbuildacompiler.compiler.exceptions.UndefinedFunction;
 import de.letsbuildacompiler.compiler.exceptions.VariableAlreadyDefinedException;
@@ -35,6 +36,8 @@ import de.letsbuildacompiler.parser.GramaticaParser.TesteContext;
 public class MyVisitor extends GramaticaBaseVisitor<String> {
 
 	private Map<String, Integer> variables = new HashMap<>();
+	private Map<String, String> tiposDeclarados = new HashMap<>();
+	private Stack<String> pilhaTipos = new Stack<String>();
 	private final Set<String> definedFunctions;
 	private int i=0;
 	
@@ -60,6 +63,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			throw new VariableAlreadyDefinedException(ctx.nomeVariavel);
 		}
 		variables.put(ctx.nomeVariavel.getText(), variables.size());
+		tiposDeclarados.put(ctx.nomeVariavel.getText(), ctx.tipo.getText());
 		return "";
 	}
 	///////////////////////////////////vardeclatrib///////////////////////////////////////
@@ -67,12 +71,16 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	 *Tratado atribuicao de variaveis nao declaradas*/
 	@Override
 	public String visitDeclararEAtribuir(DeclararEAtribuirContext ctx) {
+		String retorno;
 		if(variables.containsKey(ctx.variavel.getText())){
 			throw new VariableAlreadyDefinedException(ctx.variavel);
 		}
-		variables.put(ctx.variavel.getText(), variables.size());
-		return visit(ctx.valor) + "\n" + "istore "
-				+ requireVariableIndex(ctx.variavel);
+		variables.put(ctx.variavel.getText(), variables.size());//declarar variavel
+		pilhaTipos.push(ctx.tipo.getText());//empilhar tipo
+		retorno = visit(ctx.valor) + "\n" + "istore "
+		+ requireVariableIndex(ctx.variavel);
+		pilhaTipos.pop();//desempilhar tipo
+		return retorno;
 	}
 	/////////////////////////////////Atrib/////////////////////////////////////////
 	/*Tratado atribuicao de variaveis nao declaradas*/
@@ -135,7 +143,15 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	// //////////////////////////////////////factor///////////////////////////////////////////
 	@Override
 	public String visitNumeroInteiro(NumeroInteiroContext ctx) {
-		return "ldc " + ctx.numero.getText();
+		if(pilhaTipos.isEmpty()){
+			return "ldc " + ctx.numero.getText();
+		}else{
+			if(pilhaTipos.peek().equals("int")){
+				return "ldc " + ctx.numero.getText();
+			}else{
+				throw new ExcecaoTipoNaoCompativel(ctx.numero,pilhaTipos.peek());
+			}
+		}
 	}
 
 	// ///////////////////////////////////////////////////////////////////////////////////////
@@ -235,5 +251,4 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		return resultado.toString();
 		
 	}
-	
 }

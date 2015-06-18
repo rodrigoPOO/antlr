@@ -1,4 +1,4 @@
-	grammar Gramatica;
+grammar Gramatica;
 
 //declaracao programa
 
@@ -7,11 +7,11 @@
 teste: (programDecl)+;
 
 programDecl: statement #comandoNormal
-			| metoddecl #metodoDecl
-			;
+            | metoddecl #metodoDecl
+            ;
 statement: println ';' 
-		| escopoclasse 
-		| expressao;
+        | escopoclasse 
+        | expressao;
 println: 'println(' argument=expressao ')';
 
 //programa: classe+;
@@ -24,24 +24,24 @@ declclasse: CLASS IDENT LBRACE escopoclasse* RBRACE;
 
 //declaracoes dentro da classe (metodos e variaveis)
 escopoclasse: vardecl SEMICOLON
-			| vardeclatrib SEMICOLON
+            | vardeclatrib SEMICOLON
             | atrib SEMICOLON
             | inicializarArranjo SEMICOLON                        
             ;
 
 /*Declaracoes*/ 
-vardecl:(INT | DOUBLE | STRING | BOOLEAN) ( LBRACKET RBRACKET )* nomeVariavel=IDENT #DeclaracaoVariaveis;
-
+vardecl:tipo=tipoDeclarar ( LBRACKET RBRACKET )* nomeVariavel=IDENT #DeclaracaoVariaveis;
+tipoDeclarar: INT | DOUBLE | STRING | BOOLEAN;
 
 /*Declaracao seguida de atribuicao*/
-vardeclatrib: (INT | DOUBLE | STRING | BOOLEAN | IDENT) variavel=IDENT ASSIGN valor=term #DeclararEAtribuir;//para o caso de int a = bola[2];
+vardeclatrib:tipo=tipoDeclarar variavel=IDENT ASSIGN valor=term #DeclararEAtribuir;//para o caso de int a = bola[2];
 
 /*Atribuicao*/
 atrib: variavel=IDENT (LBRACKET expressao RBRACKET)*  ASSIGN expr=expressao #Atribuicao;
 
 lvalue: identificador=IDENT (LBRACKET expressao RBRACKET)* #CarregarValor;//ident[2*i] = x;
 
-inicializarArranjo:(INT | DOUBLE | STRING | BOOLEAN) (LBRACKET RBRACKET)+ ASSIGN NEW (INT | DOUBLE | STRING | BOOLEAN) (LBRACKET expressao RBRACKET)+;//double[][] notas = new double[2][5];
+inicializarArranjo:tipo=tipoDeclarar (LBRACKET RBRACKET)+ ASSIGN NEW tipoInstanciado=tipoDeclarar (LBRACKET expressao RBRACKET)+;//double[][] notas = new double[2][5];
 
 /*Declaracao Metodos*/
 //metoddecl:type=(INT | DOUBLE | STRING | BOOLEAN | VOID) ( LBRACKET RBRACKET )* nomeMetodo=IDENT ' (' ')' '{''return ' expressao ';''}';
@@ -59,7 +59,7 @@ comando1: ifstatement
     | vardecl SEMICOLON
     | atrib SEMICOLON
     | vardeclatrib SEMICOLON
-	  | inicializarArranjo SEMICOLON
+    | inicializarArranjo SEMICOLON
     | whilestatement;
 
 escopometodo:LPAREN parametro? RPAREN '{'comando'}';
@@ -79,7 +79,7 @@ comando:retorno SEMICOLON |
     | vardecl SEMICOLON
     | atrib SEMICOLON
     | vardeclatrib SEMICOLON
-	  | inicializarArranjo SEMICOLON
+    | inicializarArranjo SEMICOLON
     | whilestatement
     ;
 
