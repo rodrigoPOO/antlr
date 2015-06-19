@@ -34,12 +34,12 @@ vardecl:tipo=tipoDeclarar ( LBRACKET RBRACKET )* nomeVariavel=IDENT #DeclaracaoV
 tipoDeclarar: INT | DOUBLE | STRING | BOOLEAN;
 
 /*Declaracao seguida de atribuicao*/
-vardeclatrib:tipo=tipoDeclarar variavel=IDENT ASSIGN valor=term #DeclararEAtribuir;//para o caso de int a = bola[2];
+vardeclatrib:tipo=tipoDeclarar variavel=IDENT operacao=ASSIGN valor=term #DeclararEAtribuir;//para o caso de int a = bola[2];
 
 /*Atribuicao*/
-atrib: variavel=IDENT (LBRACKET expressao RBRACKET)*  ASSIGN expr=expressao #Atribuicao;
+atrib: variavel=IDENT (LBRACKET expressao RBRACKET)*  operacao=ASSIGN expr=expressao #Atribuicao;//ident[2*i] = x;
 
-lvalue: identificador=IDENT (LBRACKET expressao RBRACKET)* #CarregarValor;//ident[2*i] = x;
+lvalue: identificador=IDENT (LBRACKET expressao RBRACKET)* #CarregarValor;//ident[2*i];
 
 inicializarArranjo:tipo=tipoDeclarar (LBRACKET RBRACKET)+ ASSIGN NEW tipoInstanciado=tipoDeclarar (LBRACKET expressao RBRACKET)+;//double[][] notas = new double[2][5];
 
@@ -85,20 +85,20 @@ comando:retorno SEMICOLON |
 
 
 expressao: term #Numexpr
-         | esquerda=term LT direita=term #Menor
-         | esquerda=term GT direita=term #Maior
-         | esquerda=term LE direita=term #MenorOuEquivalente
-         | esquerda=term GE direita=term #MaiorOuEquivalente
-         | esquerda=term EQ direita=term #Equivalente
-         | esquerda=term NEQ direita=term #Diferente
+         | esquerda=term operacao=LT direita=term #Menor
+         | esquerda=term operacao=GT direita=term #Maior
+         | esquerda=term operacao=LE direita=term #MenorOuEquivalente
+         | esquerda=term operacao=GE direita=term #MaiorOuEquivalente
+         | esquerda=term operacao=EQ direita=term #Equivalente
+         | esquerda=term operacao=NEQ direita=term #Diferente
          | metodcall #ChamarMetodo
          ;
 
-term: esquerda=term SLASH esquerda=term #Divisao
-   	| esquerda=term STAR esquerda=term #Multiplicacao
-    | esquerda=term REM esquerda=term #Modulo
-    | esquerda=term MINUS esquerda=term #Subtracao
-    | esquerda=term PLUS esquerda=term #Soma
+term: esquerda=term operacao=SLASH direita=term #Divisao
+    | esquerda=term operacao=STAR direita=term #Multiplicacao
+    | esquerda=term operacao=REM direita=term #Modulo
+    | esquerda=term operacao=MINUS direita=term #Subtracao
+    | esquerda=term operacao=PLUS direita=term #Soma
     | factor #Fator
     ;
 

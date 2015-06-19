@@ -11,6 +11,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import de.letsbuildacompiler.compiler.exceptions.ExcecaoTipoNaoCompativel;
+import de.letsbuildacompiler.compiler.exceptions.ExcecaoTipoRegra;
 import de.letsbuildacompiler.compiler.exceptions.FunctionAlreadyDefinedException;
 import de.letsbuildacompiler.compiler.exceptions.UndeclaredVariableException;
 import de.letsbuildacompiler.compiler.exceptions.UndefinedFunction;
@@ -41,6 +42,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	private Map<String, String> tiposDeclarados = new HashMap<>();
 	private Stack<String> pilhaTipos = new Stack<String>();
 	private final MetodoList definedFunctions;
+	private static Map<String, String> mapaOperacoes;
 	private int i=0;
 	
 	public MyVisitor(MetodoList definedFuncitions) {
@@ -48,7 +50,25 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			throw new NullPointerException("eRRRRRo");
 		}
 		this.definedFunctions = definedFuncitions;
-		
+		/*
+		int double null string boolean
+		+ - * \/ %
+		 */
+		mapaOperacoes = new HashMap<>();
+		mapaOperacoes.put("int-int", "int");
+		mapaOperacoes.put("int+int", "int");
+		mapaOperacoes.put("int*int", "int");
+		mapaOperacoes.put("int/int", "int");
+		mapaOperacoes.put("int%int", "int");
+
+		mapaOperacoes.put("double-double", "double");
+		mapaOperacoes.put("double+double", "double");
+		mapaOperacoes.put("double*double", "double");
+		mapaOperacoes.put("double/double", "double");
+		mapaOperacoes.put("double%double", "double");
+
+		mapaOperacoes.put("string-string", "string");
+		mapaOperacoes.put("string+string", "string");
 	}
 	@Override
 	public String visitPrintln(PrintlnContext ctx) {
@@ -76,11 +96,14 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		if(variables.containsKey(ctx.variavel.getText())){
 			throw new VariableAlreadyDefinedException(ctx.variavel);
 		}
+		retorno = visit(ctx.valor);
+		String tipoEncontrado = pilhaTipos.pop();
+		if(!ctx.tipo.getText().equals(tipoEncontrado)){
+			throw new ExcecaoTipoRegra(ctx.variavel.getText(),ctx.operacao,ctx.tipo.getText(),tipoEncontrado);
+		}
 		variables.put(ctx.variavel.getText(), variables.size());//declarar variavel
-		pilhaTipos.push(ctx.tipo.getText());//empilhar tipo
-		retorno = visit(ctx.valor) + "\n" + "istore "
-		+ requireVariableIndex(ctx.variavel);
-		pilhaTipos.pop();//desempilhar tipo
+		tiposDeclarados.put(ctx.variavel.getText(), ctx.tipo.getText());
+		retorno = retorno + "\n" + "istore " + requireVariableIndex(ctx.variavel);
 		return retorno;
 	}
 	/////////////////////////////////Atrib/////////////////////////////////////////
@@ -94,6 +117,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	/*Tratado leitura de variaveis nao declaradas*/
 	@Override
 	public String visitCarregarValor(CarregarValorContext ctx) {
+		pilhaTipos.push(tiposDeclarados.get(ctx.identificador.getText()));
 		return "iload "+requireVariableIndex(ctx.identificador);
 	}
 
@@ -115,45 +139,49 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 								 +"Label"+(i-1)+":\n"
 								 ;
 	}
-	// //////////////////////////////////////term///////////////////////////////////////////
+	////////////////////////////////////////term///////////////////////////////////////////
 	@Override
 	public String visitDivisao(DivisaoContext ctx) {
-		return visitChildren(ctx) + "\n" + "idiv";
+		String retorno = visitChildren(ctx) + "\n" + "idiv";
+		verificarOperacao(ctx.esquerda.getText(),ctx.direita.getText(),ctx.operacao);
+		return retorno;
 	}
 
 	@Override
 	public String visitMultiplicacao(MultiplicacaoContext ctx) {
-		return visitChildren(ctx) + "\n" + "imul";
+		String retorno = visitChildren(ctx) + "\n" + "imul";
+		verificarOperacao(ctx.esquerda.getText(),ctx.direita.getText(),ctx.operacao);
+		return retorno;
 	}
 
 	@Override
 	public String visitModulo(ModuloContext ctx) {
-		return visitChildren(ctx) + "\n" + "irem";
+		String retorno = visitChildren(ctx) + "\n" + "irem";
+		verificarOperacao(ctx.esquerda.getText(),ctx.direita.getText(),ctx.operacao);
+		return retorno;
 	}
 
 	@Override
 	public String visitSubtracao(SubtracaoContext ctx) {
-		return visitChildren(ctx) + "\n" + "isub";
+		String retorno = visitChildren(ctx) + "\n" + "isub";
+		verificarOperacao(ctx.esquerda.getText(),ctx.direita.getText(),ctx.operacao);
+		return retorno;
 	}
 
 	@Override
 	public String visitSoma(SomaContext ctx) {
-		return visitChildren(ctx) + "\n" + "iadd";
+		String retorno = visitChildren(ctx) + "\n" + "iadd";
+		verificarOperacao(ctx.esquerda.getText(),ctx.direita.getText(),ctx.operacao);
+		return retorno;
 	}
 
 	// //////////////////////////////////////factor///////////////////////////////////////////
 	@Override
 	public String visitNumeroInteiro(NumeroInteiroContext ctx) {
-		if(pilhaTipos.isEmpty()){
-			return "ldc " + ctx.numero.getText();
-		}else{
-			if(pilhaTipos.peek().equals("int")){
-				return "ldc " + ctx.numero.getText();
-			}else{
-				throw new ExcecaoTipoNaoCompativel(ctx.numero,pilhaTipos.peek());
-			}
-		}
+		pilhaTipos.push("int");
+		return "ldc " + ctx.numero.getText();
 	}
+
 
 	// ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -163,6 +191,15 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			throw new UndeclaredVariableException(varNameToken);
 		}
 		return varIndex;
+	}
+		
+	public void verificarOperacao(String token1, String token2, Token operacao){
+		String op = pilhaTipos.pop()+operacao.getText()+pilhaTipos.pop();
+		String resultadoOP = mapaOperacoes.get(op);
+		if(resultadoOP == null){
+			throw new ExcecaoTipoNaoCompativel(token1,token2,operacao);
+		}
+		pilhaTipos.push(resultadoOP);
 	}
 	
 	@Override
