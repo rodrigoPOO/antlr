@@ -105,6 +105,16 @@ public interface GramaticaListener extends ParseTreeListener {
 	 */
 	void exitDeclaracaoVariaveis(GramaticaParser.DeclaracaoVariaveisContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link GramaticaParser#tipoDeclarar}.
+	 * @param ctx the parse tree
+	 */
+	void enterTipoDeclarar(GramaticaParser.TipoDeclararContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GramaticaParser#tipoDeclarar}.
+	 * @param ctx the parse tree
+	 */
+	void exitTipoDeclarar(GramaticaParser.TipoDeclararContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code DeclararEAtribuir}
 	 * labeled alternative in {@link GramaticaParser#vardeclatrib}.
 	 * @param ctx the parse tree

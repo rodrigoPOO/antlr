@@ -1,4 +1,4 @@
-// Generated from Gramatica.g4 by ANTLR 4.4
+// Generated from Gramatica.g4 by ANTLR 4.5
 package de.letsbuildacompiler.parser;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
@@ -11,13 +11,13 @@ import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class GramaticaLexer extends Lexer {
-	static { RuntimeMetaData.checkVersion("4.4", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.5", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__2=1, T__1=2, T__0=3, INT_CONSTANT=4, NULL_CONSTANT=5, DOUBLE_CONSTANT=6, 
+		T__0=1, T__1=2, T__2=3, INT_CONSTANT=4, NULL_CONSTANT=5, DOUBLE_CONSTANT=6, 
 		CLASS=7, VOID=8, TRUE=9, FALSE=10, BREAK=11, IF=12, ELSE=13, FOR=14, RETURN=15, 
 		NEW=16, STRING=17, INT=18, DOUBLE=19, WHILE=20, BOOLEAN=21, IDENT=22, 
 		LPAREN=23, RPAREN=24, LBRACE=25, RBRACE=26, LBRACKET=27, RBRACKET=28, 
@@ -27,23 +27,63 @@ public class GramaticaLexer extends Lexer {
 		"DEFAULT_MODE"
 	};
 
-	public static final String[] tokenNames = {
-		"'\\u0000'", "'\\u0001'", "'\\u0002'", "'\\u0003'", "'\\u0004'", "'\\u0005'", 
-		"'\\u0006'", "'\\u0007'", "'\b'", "'\t'", "'\n'", "'\\u000B'", "'\f'", 
-		"'\r'", "'\\u000E'", "'\\u000F'", "'\\u0010'", "'\\u0011'", "'\\u0012'", 
-		"'\\u0013'", "'\\u0014'", "'\\u0015'", "'\\u0016'", "'\\u0017'", "'\\u0018'", 
-		"'\\u0019'", "'\\u001A'", "'\\u001B'", "'\\u001C'", "'\\u001D'", "'\\u001E'", 
-		"'\\u001F'", "' '", "'!'", "'\"'", "'#'", "'$'", "'%'", "'&'", "'''", 
-		"'('", "')'", "'*'", "'+'", "','"
-	};
 	public static final String[] ruleNames = {
-		"T__2", "T__1", "T__0", "INT_CONSTANT", "NULL_CONSTANT", "DOUBLE_CONSTANT", 
+		"T__0", "T__1", "T__2", "INT_CONSTANT", "NULL_CONSTANT", "DOUBLE_CONSTANT", 
 		"CLASS", "VOID", "TRUE", "FALSE", "BREAK", "IF", "ELSE", "FOR", "RETURN", 
 		"NEW", "STRING", "INT", "DOUBLE", "WHILE", "BOOLEAN", "IDENT", "LPAREN", 
 		"RPAREN", "LBRACE", "RBRACE", "LBRACKET", "RBRACKET", "SEMICOLON", "COMMA", 
 		"DOT", "ASSIGN", "GT", "LT", "EQ", "LE", "GE", "NEQ", "PLUS", "MINUS", 
 		"STAR", "SLASH", "REM", "WHITESPACE"
 	};
+
+	private static final String[] _LITERAL_NAMES = {
+		null, "'println('", "' ('", "'return '", null, "'null'", null, "'class'", 
+		"'void'", "'true'", "'false'", "'break'", "'if'", "'else'", "'for'", "'return'", 
+		"'new'", "'string'", "'int'", "'double'", "'while'", "'boolean'", null, 
+		"'('", "')'", "'{'", "'}'", "'['", "']'", "';'", "','", "'.'", "'='", 
+		"'>'", "'<'", "'=='", "'<='", "'>='", "'!='", "'+'", "'-'", "'*'", "'/'", 
+		"'%'"
+	};
+	private static final String[] _SYMBOLIC_NAMES = {
+		null, null, null, null, "INT_CONSTANT", "NULL_CONSTANT", "DOUBLE_CONSTANT", 
+		"CLASS", "VOID", "TRUE", "FALSE", "BREAK", "IF", "ELSE", "FOR", "RETURN", 
+		"NEW", "STRING", "INT", "DOUBLE", "WHILE", "BOOLEAN", "IDENT", "LPAREN", 
+		"RPAREN", "LBRACE", "RBRACE", "LBRACKET", "RBRACKET", "SEMICOLON", "COMMA", 
+		"DOT", "ASSIGN", "GT", "LT", "EQ", "LE", "GE", "NEQ", "PLUS", "MINUS", 
+		"STAR", "SLASH", "REM", "WHITESPACE"
+	};
+	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
+
+	/**
+	 * @deprecated Use {@link #VOCABULARY} instead.
+	 */
+	@Deprecated
+	public static final String[] tokenNames;
+	static {
+		tokenNames = new String[_SYMBOLIC_NAMES.length];
+		for (int i = 0; i < tokenNames.length; i++) {
+			tokenNames[i] = VOCABULARY.getLiteralName(i);
+			if (tokenNames[i] == null) {
+				tokenNames[i] = VOCABULARY.getSymbolicName(i);
+			}
+
+			if (tokenNames[i] == null) {
+				tokenNames[i] = "<INVALID>";
+			}
+		}
+	}
+
+	@Override
+	@Deprecated
+	public String[] getTokenNames() {
+		return tokenNames;
+	}
+
+	@Override
+
+	public Vocabulary getVocabulary() {
+		return VOCABULARY;
+	}
 
 
 	public GramaticaLexer(CharStream input) {
@@ -53,9 +93,6 @@ public class GramaticaLexer extends Lexer {
 
 	@Override
 	public String getGrammarFileName() { return "Gramatica.g4"; }
-
-	@Override
-	public String[] getTokenNames() { return tokenNames; }
 
 	@Override
 	public String[] getRuleNames() { return ruleNames; }
@@ -76,7 +113,7 @@ public class GramaticaLexer extends Lexer {
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
 		"\4\32\t\32\4\33\t\33\4\34\t\34\4\35\t\35\4\36\t\36\4\37\t\37\4 \t \4!"+
 		"\t!\4\"\t\"\4#\t#\4$\t$\4%\t%\4&\t&\4\'\t\'\4(\t(\4)\t)\4*\t*\4+\t+\4"+
-		",\t,\4-\t-\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\3\3\3\3\3\3\4\3\4\3\4\3\4"+
+		",\t,\4-\t-\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\3\3\3\3\3\3\4\3\4\3\4"+
 		"\3\4\3\4\3\4\3\4\3\4\3\5\6\5q\n\5\r\5\16\5r\3\6\3\6\3\6\3\6\3\6\3\7\6"+
 		"\7{\n\7\r\7\16\7|\3\7\3\7\6\7\u0081\n\7\r\7\16\7\u0082\3\b\3\b\3\b\3\b"+
 		"\3\b\3\b\3\t\3\t\3\t\3\t\3\t\3\n\3\n\3\n\3\n\3\n\3\13\3\13\3\13\3\13\3"+
@@ -99,7 +136,7 @@ public class GramaticaLexer extends Lexer {
 		"\2\2\67\3\2\2\2\29\3\2\2\2\2;\3\2\2\2\2=\3\2\2\2\2?\3\2\2\2\2A\3\2\2\2"+
 		"\2C\3\2\2\2\2E\3\2\2\2\2G\3\2\2\2\2I\3\2\2\2\2K\3\2\2\2\2M\3\2\2\2\2O"+
 		"\3\2\2\2\2Q\3\2\2\2\2S\3\2\2\2\2U\3\2\2\2\2W\3\2\2\2\2Y\3\2\2\2\3[\3\2"+
-		"\2\2\5c\3\2\2\2\7f\3\2\2\2\tp\3\2\2\2\13t\3\2\2\2\rz\3\2\2\2\17\u0084"+
+		"\2\2\5d\3\2\2\2\7g\3\2\2\2\tp\3\2\2\2\13t\3\2\2\2\rz\3\2\2\2\17\u0084"+
 		"\3\2\2\2\21\u008a\3\2\2\2\23\u008f\3\2\2\2\25\u0094\3\2\2\2\27\u009a\3"+
 		"\2\2\2\31\u00a0\3\2\2\2\33\u00a3\3\2\2\2\35\u00a8\3\2\2\2\37\u00ac\3\2"+
 		"\2\2!\u00b3\3\2\2\2#\u00b7\3\2\2\2%\u00be\3\2\2\2\'\u00c2\3\2\2\2)\u00c9"+
@@ -108,9 +145,9 @@ public class GramaticaLexer extends Lexer {
 		"\3\2\2\2=\u00ec\3\2\2\2?\u00ee\3\2\2\2A\u00f0\3\2\2\2C\u00f2\3\2\2\2E"+
 		"\u00f4\3\2\2\2G\u00f6\3\2\2\2I\u00f9\3\2\2\2K\u00fc\3\2\2\2M\u00ff\3\2"+
 		"\2\2O\u0102\3\2\2\2Q\u0104\3\2\2\2S\u0106\3\2\2\2U\u0108\3\2\2\2W\u010a"+
-		"\3\2\2\2Y\u010d\3\2\2\2[\\\7t\2\2\\]\7g\2\2]^\7v\2\2^_\7w\2\2_`\7t\2\2"+
-		"`a\7p\2\2ab\7\"\2\2b\4\3\2\2\2cd\7\"\2\2de\7*\2\2e\6\3\2\2\2fg\7r\2\2"+
-		"gh\7t\2\2hi\7k\2\2ij\7p\2\2jk\7v\2\2kl\7n\2\2lm\7p\2\2mn\7*\2\2n\b\3\2"+
+		"\3\2\2\2Y\u010d\3\2\2\2[\\\7r\2\2\\]\7t\2\2]^\7k\2\2^_\7p\2\2_`\7v\2\2"+
+		"`a\7n\2\2ab\7p\2\2bc\7*\2\2c\4\3\2\2\2de\7\"\2\2ef\7*\2\2f\6\3\2\2\2g"+
+		"h\7t\2\2hi\7g\2\2ij\7v\2\2jk\7w\2\2kl\7t\2\2lm\7p\2\2mn\7\"\2\2n\b\3\2"+
 		"\2\2oq\t\2\2\2po\3\2\2\2qr\3\2\2\2rp\3\2\2\2rs\3\2\2\2s\n\3\2\2\2tu\7"+
 		"p\2\2uv\7w\2\2vw\7n\2\2wx\7n\2\2x\f\3\2\2\2y{\t\2\2\2zy\3\2\2\2{|\3\2"+
 		"\2\2|z\3\2\2\2|}\3\2\2\2}~\3\2\2\2~\u0080\5? \2\177\u0081\t\2\2\2\u0080"+

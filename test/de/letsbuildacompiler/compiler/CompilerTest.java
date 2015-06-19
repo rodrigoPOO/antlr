@@ -150,7 +150,7 @@ public class CompilerTest {
 				{"int randomNumber (){return 322;} \nprintln(randomNumber());", "322"+System.lineSeparator()},
 				{"int randomNumber (){int a; a = 322;\nreturn a;}\nprintln(randomNumber());int a; a = 4;println(a);", "322"+System.lineSeparator()+"4"+System.lineSeparator()},
 				{"int somar (int a, int b){return a+b;}\nprintln(somar(1,1));", "2"+System.lineSeparator()},
-				{"int a (){return 0;}\nint a (int b){return b;}\nprintln(a());\nprintln(a(1));","0"+System.lineSeparator()+"1"+System.lineSeparator()},
+				{"int a (){return 0;}\n int a (int b){return b;}\nprintln(a());\nprintln(a(1));","0"+System.lineSeparator()+"1"+System.lineSeparator()},
 				{"int a = 161;int b = 161;println(b+a == b+a);", "1"+System.lineSeparator()}
 				
 		};

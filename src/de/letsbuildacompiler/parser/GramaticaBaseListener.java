@@ -125,6 +125,18 @@ public class GramaticaBaseListener implements GramaticaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTipoDeclarar(GramaticaParser.TipoDeclararContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTipoDeclarar(GramaticaParser.TipoDeclararContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterDeclararEAtribuir(GramaticaParser.DeclararEAtribuirContext ctx) { }
 	/**
 	 * {@inheritDoc}
