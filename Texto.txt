@@ -1,1 +1,1 @@
-int foo = 42; println(foo+2);
+boolean foo = 4; println(foo+2);

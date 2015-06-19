@@ -31,6 +31,7 @@ import de.letsbuildacompiler.parser.GramaticaParser.MetoddeclContext;
 import de.letsbuildacompiler.parser.GramaticaParser.ModuloContext;
 import de.letsbuildacompiler.parser.GramaticaParser.MultiplicacaoContext;
 import de.letsbuildacompiler.parser.GramaticaParser.NumeroInteiroContext;
+import de.letsbuildacompiler.parser.GramaticaParser.NumeroRealContext;
 import de.letsbuildacompiler.parser.GramaticaParser.PrintlnContext;
 import de.letsbuildacompiler.parser.GramaticaParser.SomaContext;
 import de.letsbuildacompiler.parser.GramaticaParser.SubtracaoContext;
@@ -178,10 +179,14 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	// //////////////////////////////////////factor///////////////////////////////////////////
 	@Override
 	public String visitNumeroInteiro(NumeroInteiroContext ctx) {
-		pilhaTipos.push("int");
+		pilhaTipos.push("int");		
 		return "ldc " + ctx.numero.getText();
 	}
-
+	@Override
+	public String visitNumeroReal(NumeroRealContext ctx) {
+		pilhaTipos.push("double");
+		return "ldc " + ctx.numero.getText();
+	}
 
 	// ///////////////////////////////////////////////////////////////////////////////////////
 
