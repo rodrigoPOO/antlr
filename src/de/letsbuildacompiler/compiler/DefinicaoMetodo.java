@@ -11,17 +11,16 @@ import de.letsbuildacompiler.compiler.exceptions.FunctionAlreadyDefinedException
 import de.letsbuildacompiler.parser.GramaticaBaseVisitor;
 import de.letsbuildacompiler.parser.GramaticaParser.MetoddeclContext;
 /*Classe encarregada de verificar as definições das funções.
- * Será executada antes de instanciarmos o MyVisitor;
- * Aggregate concatena as definições conforme percorre o código; 
- * MyVisitor receberá um Set com as funções já definidas, caracterizando a "segunda" passada da verficação da analise semantica.
- * ---------------------------------------------------------------------------------out-dated------------
+ * Será executada antes de instanciarmos o MyVisitor; *  
+ * MyVisitor receberá uma MetodoList com as funções já definidas, caracterizando a "segunda" passada da verficação da analise semantica.
+ * 
  * 
  * */
 
-public class MetodoDefinition{
+public class DefinicaoMetodo{
 	
-	public static MetodoList findMetodoDef(ParseTree tree){
-		final MetodoList funcDef = new MetodoList();
+	public static MetodosDeclarados findMetodoDef(ParseTree tree){
+		final MetodosDeclarados funcDef = new MetodosDeclarados();
 		new GramaticaBaseVisitor<Void>(){
 			public Void visitMetoddecl(MetoddeclContext ctx) {
 				String nomeFunc = ctx.nomeMetodo.getText();

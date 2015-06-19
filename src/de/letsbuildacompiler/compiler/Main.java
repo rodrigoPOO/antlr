@@ -30,8 +30,8 @@ public class Main {
 		GramaticaParser parser = new GramaticaParser(token);
 		
 		ParseTree tree = parser.teste();
-		MetodoList definedFuncitions = MetodoDefinition.findMetodoDef(tree);				
-		return createJasminFile(new MyVisitor(definedFuncitions).visit(tree));
+		MetodosDeclarados metodosDeclarados = DefinicaoMetodo.findMetodoDef(tree);				
+		return createJasminFile(new MyVisitor(metodosDeclarados).visit(tree));
 			
 		
 		

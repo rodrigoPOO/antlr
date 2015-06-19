@@ -41,15 +41,15 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	private Map<String, Integer> variables = new HashMap<>();
 	private Map<String, String> tiposDeclarados = new HashMap<>();
 	private Stack<String> pilhaTipos = new Stack<String>();
-	private final MetodoList definedFunctions;
+	private final MetodosDeclarados metodosDeclarados;
 	private static Map<String, String> mapaOperacoes;
 	private int i=0;
 	
-	public MyVisitor(MetodoList definedFuncitions) {
-		if(definedFuncitions == null){
+	public MyVisitor(MetodosDeclarados metodosDeclarados) {
+		if(metodosDeclarados == null){
 			throw new NullPointerException("eRRRRRo");
 		}
-		this.definedFunctions = definedFuncitions;
+		this.metodosDeclarados = metodosDeclarados;
 		/*
 		int double null string boolean
 		+ - * \/ %
@@ -217,7 +217,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		Map<String, Integer> alocatedVariables = variables;
 		variables = new HashMap<>();
 		
-		visit(ctx.parametros);
+		visit(ctx.parametros); //usado para evitar que excecao de variaveis nao declaradas ocorram.
 		String comandos = visit(ctx.comandos());
 		int numeroParam = ctx.parametros.decl.size();				
 		
@@ -238,7 +238,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	@Override
 	public String visitMetodcall(MetodcallContext ctx) {
 		int numeroArg = ctx.args.exp.size();
-		if(!definedFunctions.contains(ctx.nomeMetodo.getText(),numeroArg)){
+		if(!metodosDeclarados.contains(ctx.nomeMetodo.getText(),numeroArg)){
 			throw new UndefinedFunction(ctx.nomeMetodo);
 		}
 		String args = visit(ctx.args);
@@ -254,7 +254,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		return instrucoes;
 
 	}
-	
+	//diferencia comandos de declaracoes de metodo;
 	@Override
 	public String visitTeste(TesteContext ctx) {
 		String comandosClasse = "";
@@ -281,6 +281,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		".end method";
 
 	}
+	//usado para "concatenar" parametros na hora de gerar o codigo de maquina.
 	public String stringRepeat(String param, int cont){
 		StringBuilder resultado = new StringBuilder();
 		for(int i = 0; i < cont; i++){

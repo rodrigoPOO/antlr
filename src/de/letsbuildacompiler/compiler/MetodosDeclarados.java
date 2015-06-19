@@ -1,8 +1,13 @@
 package de.letsbuildacompiler.compiler;
 
 import java.util.ArrayList;
+/*Classe responsáve por armazenar os metodos declarados.
+ * O fator que decidirá se um método já foi declarado é seu nome e quantidade de parametros.
+ * TODO: MUDAR O FATOR. De forma a verificar quantidade e tipo.
+ * 
+ * */
 
-public class MetodoList {
+public class MetodosDeclarados {
 
 	private ArrayList<AssinaturaMetodo> metodos = new ArrayList<>();
 	public boolean contains(String nomeMetod, int qntParam){
