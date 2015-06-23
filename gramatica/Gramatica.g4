@@ -31,7 +31,7 @@ escopoclasse: vardecl SEMICOLON
 
 /*Declaracoes*/ 
 vardecl:tipo=tipoDeclarar ( LBRACKET RBRACKET )* nomeVariavel=IDENT #DeclaracaoVariaveis;
-tipoDeclarar: INT | DOUBLE | STRING | BOOLEAN;
+tipoDeclarar: INT | FLOAT | STRING | BOOLEAN;
 
 /*Declaracao seguida de atribuicao*/
 vardeclatrib:tipo=tipoDeclarar variavel=IDENT operacao=ASSIGN valor=term #DeclararEAtribuir;//para o caso de int a = bola[2];
@@ -41,10 +41,10 @@ atrib: variavel=IDENT (LBRACKET expressao RBRACKET)*  operacao=ASSIGN expr=expre
 
 lvalue: identificador=IDENT (LBRACKET expressao RBRACKET)* #CarregarValor;//ident[2*i];
 
-inicializarArranjo:tipo=tipoDeclarar (LBRACKET RBRACKET)+ ASSIGN NEW tipoInstanciado=tipoDeclarar (LBRACKET expressao RBRACKET)+;//double[][] notas = new double[2][5];
+inicializarArranjo:tipo=tipoDeclarar (LBRACKET RBRACKET)+ ASSIGN NEW tipoInstanciado=tipoDeclarar (LBRACKET expressao RBRACKET)+;//int[][] notas = new int[2][5];
 
 /*Declaracao Metodos*/
-//metoddecl:type=(INT | DOUBLE | STRING | BOOLEAN | VOID) ( LBRACKET RBRACKET )* nomeMetodo=IDENT ' (' ')' '{''return ' expressao ';''}';
+//metoddecl:type=(INT | FLOAT | STRING | BOOLEAN | VOID) ( LBRACKET RBRACKET )* nomeMetodo=IDENT ' (' ')' '{''return ' expressao ';''}';
 metoddecl:type='int' nomeMetodo=IDENT ' (' parametros=paramlist ')' '{' com=comandos 'return ' expressao ';''}';
 
 paramlist: decl+=vardecl (',' decl+=vardecl)* | ;
@@ -64,8 +64,8 @@ comando1: ifstatement
 
 escopometodo:LPAREN parametro? RPAREN '{'comando'}';
 
-parametro:((INT | DOUBLE | STRING | BOOLEAN ) (LBRACKET RBRACKET)* IDENT//unico parametro
-                      (COMMA (INT | DOUBLE | STRING | BOOLEAN) (LBRACKET RBRACKET)* IDENT)*);//varios parametros
+parametro:((INT | FLOAT | STRING | BOOLEAN ) (LBRACKET RBRACKET)* IDENT//unico parametro
+                      (COMMA (INT | FLOAT | STRING | BOOLEAN) (LBRACKET RBRACKET)* IDENT)*);//varios parametros
 
 //deve existir uma producao vazia para o caso em que não existe parametro.
 listaargumento:exp+=expressao ( COMMA exp+=expressao )* | ;
@@ -103,9 +103,8 @@ term: esquerda=term operacao=SLASH direita=term #Divisao
     ;
 
 factor: numero=INT_CONSTANT #NumeroInteiro
-      | numero=DOUBLE_CONSTANT #NumeroReal
+      | numero=FLOAT_CONSTANT #NumeroReal
       //| STRING_CONSTANT #String
-      | NULL_CONSTANT #Null
       | lvalue #ChamarLvalue
       | LPAREN term RPAREN #Parentesis
       ;
@@ -123,8 +122,7 @@ listacomandos:comando listacomandos?;
 /* Constantes */
 INT_CONSTANT: [0-9]+;
 //<STRING_CONSTANT: "\""( ~["\"","\n","\r"])* "\"" >
-NULL_CONSTANT: 'null';
-DOUBLE_CONSTANT: [0-9]+ DOT [0-9]+;
+FLOAT_CONSTANT: [0-9]+ DOT [0-9]+;
 
 /* Palavras reservadas */
 CLASS: 'class';
@@ -139,7 +137,7 @@ RETURN: 'return';
 NEW: 'new';//usado so para instanciar arranjos
 STRING: 'string';
 INT: 'int';
-DOUBLE: 'double';
+FLOAT: 'float';
 WHILE: 'while';
 BOOLEAN: 'boolean';
 

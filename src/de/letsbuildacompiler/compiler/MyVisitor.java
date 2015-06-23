@@ -52,7 +52,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		}
 		this.metodosDeclarados = metodosDeclarados;
 		/*
-		int double null string boolean
+		int float null string boolean
 		+ - * \/ %
 		 */
 		mapaOperacoes = new HashMap<>();
@@ -62,20 +62,25 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		mapaOperacoes.put("int/int", "int");
 		mapaOperacoes.put("int%int", "int");
 
-		mapaOperacoes.put("double-double", "double");
-		mapaOperacoes.put("double+double", "double");
-		mapaOperacoes.put("double*double", "double");
-		mapaOperacoes.put("double/double", "double");
-		mapaOperacoes.put("double%double", "double");
+		mapaOperacoes.put("float-float", "float");
+		mapaOperacoes.put("float+float", "float");
+		mapaOperacoes.put("float*float", "float");
+		mapaOperacoes.put("float/float", "float");
+		mapaOperacoes.put("float%float", "float");
 
 		mapaOperacoes.put("string-string", "string");
 		mapaOperacoes.put("string+string", "string");
 	}
 	@Override
 	public String visitPrintln(PrintlnContext ctx) {
-		return "	getstatic java/lang/System/out Ljava/io/PrintStream;\n"
-				+ visit(ctx.argument) + "\n"
-				+ "	invokevirtual java/io/PrintStream/println(I)V\n";
+		String retorno = "	getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+						+ visit(ctx.argument) + "\n";
+		if(pilhaTipos.peek().equals("int")){
+			retorno = retorno + "	invokevirtual java/io/PrintStream/println(I)V\n";
+		}else if(pilhaTipos.peek().equals("float")){
+			retorno = retorno + "	invokevirtual java/io/PrintStream/println(F)V\n";
+		}
+		return retorno;
 	}
 	///////////////////////////////////Vardecl///////////////////////////////////////
 	/*Tratado declaracao de variaveis ja existentes*/
@@ -171,8 +176,13 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 
 	@Override
 	public String visitSoma(SomaContext ctx) {
-		String retorno = visitChildren(ctx) + "\n" + "iadd";
+		String retorno = visitChildren(ctx);
 		verificarOperacao(ctx.esquerda.getText(),ctx.direita.getText(),ctx.operacao);
+		if(pilhaTipos.peek().equals("int")){
+			retorno = retorno + "\n" + "iadd";
+		}else if(pilhaTipos.peek().equals("float")){
+			retorno = retorno + "\n" + "fadd";
+		}
 		return retorno;
 	}
 
@@ -184,8 +194,8 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	}
 	@Override
 	public String visitNumeroReal(NumeroRealContext ctx) {
-		pilhaTipos.push("double");
-		return "ldc " + ctx.numero.getText();
+		pilhaTipos.push("float");
+		return "fload " + ctx.numero.getText();
 	}
 
 	// ///////////////////////////////////////////////////////////////////////////////////////

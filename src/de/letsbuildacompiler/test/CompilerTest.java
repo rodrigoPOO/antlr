@@ -123,6 +123,8 @@ public class CompilerTest {
 				{"println(7%3);", "1"+System.lineSeparator()},
 				{"println(10%3);", "1"+System.lineSeparator()},
 				{"println(5%3);", "2"+System.lineSeparator()},
+				{"println(3+2);", "5"+System.lineSeparator()},
+				{"println(1.1+2.1);", "3.2"+System.lineSeparator()},
 				
 				{"int foo; foo=42; println(foo);", "42"+System.lineSeparator()},
 				{"int foo; foo = 42; println(foo+2);", "44"+System.lineSeparator()},
