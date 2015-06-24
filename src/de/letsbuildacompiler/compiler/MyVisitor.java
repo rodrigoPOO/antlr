@@ -44,16 +44,16 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	private Stack<String> pilhaTipos = new Stack<String>();
 	private final MetodosDeclarados metodosDeclarados;
 	private static Map<String, String> mapaOperacoes;
-	private int i=0;
-	
+	private int i = 0;
+
 	public MyVisitor(MetodosDeclarados metodosDeclarados) {
-		if(metodosDeclarados == null){
+		if (metodosDeclarados == null) {
 			throw new NullPointerException("eRRRRRo");
 		}
 		this.metodosDeclarados = metodosDeclarados;
 		/*
-		int float null string boolean
-		+ - * \/ %
+		 * int double null string boolean + - * \/ %
+		 * Operacoes em comentario sao operacoes perigosas melhor deixar desativado
 		 */
 		mapaOperacoes = new HashMap<>();
 		mapaOperacoes.put("int-int", "int");
@@ -62,125 +62,170 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		mapaOperacoes.put("int/int", "int");
 		mapaOperacoes.put("int%int", "int");
 
-		mapaOperacoes.put("float-float", "float");
-		mapaOperacoes.put("float+float", "float");
-		mapaOperacoes.put("float*float", "float");
-		mapaOperacoes.put("float/float", "float");
-		mapaOperacoes.put("float%float", "float");
+		mapaOperacoes.put("double-double", "double");
+		mapaOperacoes.put("double+double", "double");
+		mapaOperacoes.put("double*double", "double");
+		mapaOperacoes.put("double/double", "double");
+		mapaOperacoes.put("double%double", "double");
+
+		mapaOperacoes.put("int-double", "double");
+		mapaOperacoes.put("int+double", "double");
+		mapaOperacoes.put("int*double", "double");
+		//mapaOperacoes.put("int/double", "double");
+		//mapaOperacoes.put("int%double", "double");
+
+		mapaOperacoes.put("double-int", "double");
+		mapaOperacoes.put("double+int", "double");
+		mapaOperacoes.put("double*int", "double");
+		mapaOperacoes.put("double/int", "double");
+		//mapaOperacoes.put("double%int", "double");
 
 		mapaOperacoes.put("string-string", "string");
 		mapaOperacoes.put("string+string", "string");
 	}
+
 	@Override
 	public String visitPrintln(PrintlnContext ctx) {
 		String retorno = "	getstatic java/lang/System/out Ljava/io/PrintStream;\n"
-						+ visit(ctx.argument) + "\n";
-		if(pilhaTipos.peek().equals("int")){
-			retorno = retorno + "	invokevirtual java/io/PrintStream/println(I)V\n";
-		}else if(pilhaTipos.peek().equals("float")){
-			retorno = retorno + "	invokevirtual java/io/PrintStream/println(F)V\n";
+				+ visit(ctx.argument) + "\n";
+		if (pilhaTipos.peek().equals("int")) {
+			retorno = retorno
+					+ "	invokevirtual java/io/PrintStream/println(I)V\n";
+		} else if (pilhaTipos.peek().equals("double")) {
+			retorno = retorno
+					+ "	invokevirtual java/io/PrintStream/println(F)V\n";
 		}
 		return retorno;
 	}
-	///////////////////////////////////Vardecl///////////////////////////////////////
-	/*Tratado declaracao de variaveis ja existentes*/
+
+	// /////////////////////////////////Vardecl///////////////////////////////////////
+	/* Tratado declaracao de variaveis ja existentes */
 	@Override
 	public String visitDeclaracaoVariaveis(DeclaracaoVariaveisContext ctx) {
-		if(variables.containsKey(ctx.nomeVariavel.getText())){
+		if (variables.containsKey(ctx.nomeVariavel.getText())) {
 			throw new VariableAlreadyDefinedException(ctx.nomeVariavel);
 		}
 		variables.put(ctx.nomeVariavel.getText(), variables.size());
 		tiposDeclarados.put(ctx.nomeVariavel.getText(), ctx.tipo.getText());
 		return "";
 	}
-	///////////////////////////////////vardeclatrib///////////////////////////////////////
-	/*Tratado declaracao de variaveis ja existentes
-	 *Tratado atribuicao de variaveis nao declaradas*/
+
+	// /////////////////////////////////vardeclatrib///////////////////////////////////////
+	/*
+	 * Tratado declaracao de variaveis ja existentesTratado atribuicao de
+	 * variaveis nao declaradas
+	 */
 	@Override
 	public String visitDeclararEAtribuir(DeclararEAtribuirContext ctx) {
 		String retorno;
-		if(variables.containsKey(ctx.variavel.getText())){
+		if (variables.containsKey(ctx.variavel.getText())) {
 			throw new VariableAlreadyDefinedException(ctx.variavel);
 		}
 		retorno = visit(ctx.valor);
 		String tipoEncontrado = pilhaTipos.pop();
-		if(!ctx.tipo.getText().equals(tipoEncontrado)){
-			throw new ExcecaoTipoRegra(ctx.variavel.getText(),ctx.operacao,ctx.tipo.getText(),tipoEncontrado);
+		if (!ctx.tipo.getText().equals(tipoEncontrado)) {
+			throw new ExcecaoTipoRegra(ctx.variavel.getText(), ctx.operacao,
+					ctx.tipo.getText(), tipoEncontrado);
 		}
-		variables.put(ctx.variavel.getText(), variables.size());//declarar variavel
+		variables.put(ctx.variavel.getText(), variables.size());// declarar
+																// variavel
 		tiposDeclarados.put(ctx.variavel.getText(), ctx.tipo.getText());
-		retorno = retorno + "\n" + "istore " + requireVariableIndex(ctx.variavel);
+		retorno = retorno + "\n" + "istore "
+				+ requireVariableIndex(ctx.variavel);
 		return retorno;
 	}
-	/////////////////////////////////Atrib/////////////////////////////////////////
-	/*Tratado atribuicao de variaveis nao declaradas*/
+
+	// ///////////////////////////////Atrib/////////////////////////////////////////
+	/* Tratado atribuicao de variaveis nao declaradas */
 	@Override
 	public String visitAtribuicao(AtribuicaoContext ctx) {
 		return visit(ctx.expr) + "\n" + "istore "
 				+ requireVariableIndex(ctx.variavel);
 	}
-	/////////////////////////////////////lvalue///////////////////////////////////////
-	/*Tratado leitura de variaveis nao declaradas*/
+
+	// ///////////////////////////////////lvalue///////////////////////////////////////
+	/* Tratado leitura de variaveis nao declaradas */
 	@Override
 	public String visitCarregarValor(CarregarValorContext ctx) {
 		pilhaTipos.push(tiposDeclarados.get(ctx.identificador.getText()));
-		return "iload "+requireVariableIndex(ctx.identificador);
+		return "iload " + requireVariableIndex(ctx.identificador);
 	}
 
-
-	////////////////////////////////////////expressao///////////////////////////////////////
+	// //////////////////////////////////////expressao///////////////////////////////////////
 	@Override
 	public String visitEquivalente(EquivalenteContext ctx) {
-		i = i+2;
-		return visitChildren(ctx)+"\n"
-								 +"isub"+"\n"
-								 +"ifeq "+"Label"+(i-2)+"\n"//if topo igual 0 va para label true
-								 //Label false
-								 +"ldc 0"+"\n"
-								 +"goto Label"+(i-1)+"\n"
-								 //Label true
-								 +"Label"+(i-2)+":\n"
-								 +"ldc 1"+"\n"
-								 //label Exit
-								 +"Label"+(i-1)+":\n"
-								 ;
+		i = i + 2;
+		return visitChildren(ctx) + "\n" + "isub" + "\n" + "ifeq " + "Label"
+				+ (i - 2) + "\n"// if topo igual 0 va para label true
+				// Label false
+				+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
+				// Label true
+				+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
+				// label Exit
+				+ "Label" + (i - 1) + ":\n";
 	}
-	////////////////////////////////////////term///////////////////////////////////////////
+
+	// //////////////////////////////////////term///////////////////////////////////////////
 	@Override
 	public String visitDivisao(DivisaoContext ctx) {
-		String retorno = visitChildren(ctx) + "\n" + "idiv";
-		verificarOperacao(ctx.esquerda.getText(),ctx.direita.getText(),ctx.operacao);
+		String retorno = visitChildren(ctx);
+		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+		
+		if (pilhaTipos.peek().equals("int")) {
+			retorno = retorno + "\n" + "idiv";
+		} else if (pilhaTipos.peek().equals("double")) {
+			retorno = retorno + "\n" + "fdiv";
+		}
 		return retorno;
 	}
 
 	@Override
 	public String visitMultiplicacao(MultiplicacaoContext ctx) {
-		String retorno = visitChildren(ctx) + "\n" + "imul";
-		verificarOperacao(ctx.esquerda.getText(),ctx.direita.getText(),ctx.operacao);
+		String retorno = visitChildren(ctx);
+		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+		
+		if (pilhaTipos.peek().equals("int")) {
+			retorno = retorno + "\n" + "imul";
+		} else if (pilhaTipos.peek().equals("double")) {
+			retorno = retorno + "\n" + "fmul";
+		}
 		return retorno;
 	}
 
 	@Override
 	public String visitModulo(ModuloContext ctx) {
-		String retorno = visitChildren(ctx) + "\n" + "irem";
-		verificarOperacao(ctx.esquerda.getText(),ctx.direita.getText(),ctx.operacao);
+		String retorno = visitChildren(ctx);
+		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+		
+		if (pilhaTipos.peek().equals("int")) {
+			retorno = retorno + "\n" + "irem";
+		} else if (pilhaTipos.peek().equals("double")) {
+			retorno = retorno + "\n" + "frem";
+		}
 		return retorno;
 	}
 
 	@Override
 	public String visitSubtracao(SubtracaoContext ctx) {
-		String retorno = visitChildren(ctx) + "\n" + "isub";
-		verificarOperacao(ctx.esquerda.getText(),ctx.direita.getText(),ctx.operacao);
+		String retorno = visitChildren(ctx);
+		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+		
+		if (pilhaTipos.peek().equals("int")) {
+			retorno = retorno + "\n" + "isub";
+		} else if (pilhaTipos.peek().equals("double")) {
+			retorno = retorno + "\n" + "fsub";
+		}
 		return retorno;
 	}
 
 	@Override
 	public String visitSoma(SomaContext ctx) {
 		String retorno = visitChildren(ctx);
-		verificarOperacao(ctx.esquerda.getText(),ctx.direita.getText(),ctx.operacao);
-		if(pilhaTipos.peek().equals("int")){
+		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+		
+		if (pilhaTipos.peek().equals("int")) {
 			retorno = retorno + "\n" + "iadd";
-		}else if(pilhaTipos.peek().equals("float")){
+		} else if (pilhaTipos.peek().equals("double")) {
 			retorno = retorno + "\n" + "fadd";
 		}
 		return retorno;
@@ -189,34 +234,59 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	// //////////////////////////////////////factor///////////////////////////////////////////
 	@Override
 	public String visitNumeroInteiro(NumeroInteiroContext ctx) {
-		pilhaTipos.push("int");		
+		pilhaTipos.push("int");
 		return "ldc " + ctx.numero.getText();
 	}
+
 	@Override
 	public String visitNumeroReal(NumeroRealContext ctx) {
-		pilhaTipos.push("float");
-		return "fload " + ctx.numero.getText();
+		pilhaTipos.push("double");
+		return "ldc_w " + ctx.numero.getText();
 	}
 
 	// ///////////////////////////////////////////////////////////////////////////////////////
 
-	private int requireVariableIndex(Token varNameToken){
+	private int requireVariableIndex(Token varNameToken) {
 		Integer varIndex = variables.get(varNameToken.getText());
-		if(varIndex == null){
+		if (varIndex == null) {
 			throw new UndeclaredVariableException(varNameToken);
 		}
 		return varIndex;
 	}
-		
-	public void verificarOperacao(String token1, String token2, Token operacao){
-		String op = pilhaTipos.pop()+operacao.getText()+pilhaTipos.pop();
-		String resultadoOP = mapaOperacoes.get(op);
-		if(resultadoOP == null){
-			throw new ExcecaoTipoNaoCompativel(token1,token2,operacao);
+
+	// verificar se os tipos são os mesmos caso contrario converta-se
+	// possivel(somente se houver mapeamento)
+	public String verificarOperacao(String token1, String token2, Token operacao) {
+		// verificar se ha mapeamento
+		String direita = pilhaTipos.pop();
+		String esquerda = pilhaTipos.pop();
+		String resultadoOP = mapaOperacoes.get(esquerda + operacao.getText()
+				+ direita);
+		String retorno = "";
+		if (resultadoOP == null) {
+			throw new ExcecaoTipoNaoCompativel(token1, token2, operacao);
+		}
+		// executar conversao caso tipos sejam diferentes
+		if (!esquerda.equals(direita)) {
+			if (resultadoOP.equals(direita)) {
+				// converter esquerda para o mesmo tipo da direita
+				// primeiro fazer um swap para obter o segundo elemento da pilha (esquerda)
+				
+				//convert int to double
+				if(esquerda.equalsIgnoreCase("int")&&resultadoOP.equals("double"))
+				retorno = "\n"+"swap"+"\n"+"i2f"+"\n"+"swap";
+			} else {
+				// converter direita para o mesmo tipo da esquerda
+				
+				//convert int to double
+				if(direita.equalsIgnoreCase("int")&&resultadoOP.equals("double"))
+					retorno = "\n"+"i2f";
+			}
 		}
 		pilhaTipos.push(resultadoOP);
+		return retorno;
 	}
-	
+
 	@Override
 	protected String aggregateResult(String aggregate, String nextResult) {
 		if (aggregate == null) {
@@ -227,82 +297,79 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		}
 		return aggregate + "\n" + nextResult;
 	}
+
 	@Override
 	public String visitMetoddecl(MetoddeclContext ctx) {
 		Map<String, Integer> alocatedVariables = variables;
 		variables = new HashMap<>();
-		
-		visit(ctx.parametros); //usado para evitar que excecao de variaveis nao declaradas ocorram.
+
+		visit(ctx.parametros); // usado para evitar que excecao de variaveis nao
+								// declaradas ocorram.
 		String comandos = visit(ctx.comandos());
-		int numeroParam = ctx.parametros.decl.size();				
-		
-		String resultado= ".method public static "+ctx.nomeMetodo.getText()+"(";
-				resultado+=  stringRepeat("I", numeroParam);
-		resultado += ")I\n" +		
-				"	.limit stack 100\n" + 
-				"	.limit locals 100\n" +
-				(comandos == null ? "" : comandos +"\n")+				
-				visit(ctx.expressao()) + "\n" +  
-				"	ireturn\n" +				 
-				".end method";
+		int numeroParam = ctx.parametros.decl.size();
+
+		String resultado = ".method public static " + ctx.nomeMetodo.getText()
+				+ "(";
+		resultado += stringRepeat("I", numeroParam);
+		resultado += ")I\n" + "	.limit stack 100\n" + "	.limit locals 100\n"
+				+ (comandos == null ? "" : comandos + "\n")
+				+ visit(ctx.expressao()) + "\n" + "	ireturn\n" + ".end method";
 		variables = alocatedVariables;
 		return resultado;
-		
-		
+
 	}
+
 	@Override
 	public String visitMetodcall(MetodcallContext ctx) {
 		int numeroArg = ctx.args.exp.size();
-		if(!metodosDeclarados.contains(ctx.nomeMetodo.getText(),numeroArg)){
+		if (!metodosDeclarados.contains(ctx.nomeMetodo.getText(), numeroArg)) {
 			throw new UndefinedFunction(ctx.nomeMetodo);
 		}
 		String args = visit(ctx.args);
 		String instrucoes = "";
-		if(args != null){
-			instrucoes += args + "\n"; 
+		if (args != null) {
+			instrucoes += args + "\n";
 		}
-		
-		instrucoes +=  "invokestatic Gramatica/"+ctx.nomeMetodo.getText()+"(";
-		
+
+		instrucoes += "invokestatic Gramatica/" + ctx.nomeMetodo.getText()
+				+ "(";
+
 		instrucoes += stringRepeat("I", numeroArg);
 		instrucoes += ")I\n";
 		return instrucoes;
 
 	}
-	//diferencia comandos de declaracoes de metodo;
+
+	// diferencia comandos de declaracoes de metodo;
 	@Override
 	public String visitTeste(TesteContext ctx) {
 		String comandosClasse = "";
 		String instrucoes = "";
 		String metodo = "";
-		for(int i = 0; i < ctx.getChildCount();i++){
+		for (int i = 0; i < ctx.getChildCount(); i++) {
 			ParseTree child = ctx.getChild(i);
 			instrucoes = visit(child);
-			if(child instanceof ComandoNormalContext){
+			if (child instanceof ComandoNormalContext) {
 				comandosClasse += instrucoes + "\n";
-			}else{
+			} else {
 				metodo += instrucoes + "\n";
 			}
-			
+
 		}
-		return metodo + "\n" +
-		".method public static main([Ljava/lang/String;)V\n" + 
-		"  .limit stack 100\n" + 
-		"  .limit locals 100\n" + 
-		"  \n" + 
-		 comandosClasse + "\n" + 
-		"  return\n" + 
-		"  \n" + 
-		".end method";
+		return metodo + "\n"
+				+ ".method public static main([Ljava/lang/String;)V\n"
+				+ "  .limit stack 100\n" + "  .limit locals 100\n" + "  \n"
+				+ comandosClasse + "\n" + "  return\n" + "  \n" + ".end method";
 
 	}
-	//usado para "concatenar" parametros na hora de gerar o codigo de maquina.
-	public String stringRepeat(String param, int cont){
+
+	// usado para "concatenar" parametros na hora de gerar o codigo de maquina.
+	public String stringRepeat(String param, int cont) {
 		StringBuilder resultado = new StringBuilder();
-		for(int i = 0; i < cont; i++){
+		for (int i = 0; i < cont; i++) {
 			resultado.append(param);
 		}
 		return resultado.toString();
-		
+
 	}
 }

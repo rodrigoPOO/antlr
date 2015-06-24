@@ -26,25 +26,22 @@ declclasse: CLASS IDENT LBRACE escopoclasse* RBRACE;
 escopoclasse: vardecl SEMICOLON
             | vardeclatrib SEMICOLON
             | atrib SEMICOLON
-            | inicializarArranjo SEMICOLON                        
             ;
 
 /*Declaracoes*/ 
-vardecl:tipo=tipoDeclarar ( LBRACKET RBRACKET )* nomeVariavel=IDENT #DeclaracaoVariaveis;
-tipoDeclarar: INT | FLOAT | STRING | BOOLEAN;
+vardecl:tipo=tipoDeclarar nomeVariavel=IDENT #DeclaracaoVariaveis;
+tipoDeclarar: INT | DOUBLE | STRING | BOOLEAN;
 
 /*Declaracao seguida de atribuicao*/
 vardeclatrib:tipo=tipoDeclarar variavel=IDENT operacao=ASSIGN valor=term #DeclararEAtribuir;//para o caso de int a = bola[2];
 
 /*Atribuicao*/
-atrib: variavel=IDENT (LBRACKET expressao RBRACKET)*  operacao=ASSIGN expr=expressao #Atribuicao;//ident[2*i] = x;
+atrib: variavel=IDENT operacao=ASSIGN expr=expressao #Atribuicao;//ident[2*i] = x;
 
-lvalue: identificador=IDENT (LBRACKET expressao RBRACKET)* #CarregarValor;//ident[2*i];
-
-inicializarArranjo:tipo=tipoDeclarar (LBRACKET RBRACKET)+ ASSIGN NEW tipoInstanciado=tipoDeclarar (LBRACKET expressao RBRACKET)+;//int[][] notas = new int[2][5];
+lvalue: identificador=IDENT #CarregarValor;//ident[2*i];
 
 /*Declaracao Metodos*/
-//metoddecl:type=(INT | FLOAT | STRING | BOOLEAN | VOID) ( LBRACKET RBRACKET )* nomeMetodo=IDENT ' (' ')' '{''return ' expressao ';''}';
+//metoddecl:type=(INT | DOUBLE | STRING | BOOLEAN | VOID) nomeMetodo=IDENT ' (' ')' '{''return ' expressao ';''}';
 metoddecl:type='int' nomeMetodo=IDENT ' (' parametros=paramlist ')' '{' com=comandos 'return ' expressao ';''}';
 
 paramlist: decl+=vardecl (',' decl+=vardecl)* | ;
@@ -59,13 +56,12 @@ comando1: ifstatement
     | vardecl SEMICOLON
     | atrib SEMICOLON
     | vardeclatrib SEMICOLON
-    | inicializarArranjo SEMICOLON
     | whilestatement;
 
 escopometodo:LPAREN parametro? RPAREN '{'comando'}';
 
-parametro:((INT | FLOAT | STRING | BOOLEAN ) (LBRACKET RBRACKET)* IDENT//unico parametro
-                      (COMMA (INT | FLOAT | STRING | BOOLEAN) (LBRACKET RBRACKET)* IDENT)*);//varios parametros
+parametro:((INT | DOUBLE | STRING | BOOLEAN ) IDENT//unico parametro
+                      (COMMA (INT | DOUBLE | STRING | BOOLEAN) IDENT)*);//varios parametros
 
 //deve existir uma producao vazia para o caso em que não existe parametro.
 listaargumento:exp+=expressao ( COMMA exp+=expressao )* | ;
@@ -79,7 +75,6 @@ comando:retorno SEMICOLON |
     | vardecl SEMICOLON
     | atrib SEMICOLON
     | vardeclatrib SEMICOLON
-    | inicializarArranjo SEMICOLON
     | whilestatement
     ;
 
@@ -103,7 +98,7 @@ term: esquerda=term operacao=SLASH direita=term #Divisao
     ;
 
 factor: numero=INT_CONSTANT #NumeroInteiro
-      | numero=FLOAT_CONSTANT #NumeroReal
+      | numero=DOUBLE_CONSTANT #NumeroReal
       //| STRING_CONSTANT #String
       | lvalue #ChamarLvalue
       | LPAREN term RPAREN #Parentesis
@@ -122,7 +117,7 @@ listacomandos:comando listacomandos?;
 /* Constantes */
 INT_CONSTANT: [0-9]+;
 //<STRING_CONSTANT: "\""( ~["\"","\n","\r"])* "\"" >
-FLOAT_CONSTANT: [0-9]+ DOT [0-9]+;
+DOUBLE_CONSTANT: [0-9]+ DOT [0-9]+;
 
 /* Palavras reservadas */
 CLASS: 'class';
@@ -134,10 +129,9 @@ IF: 'if';
 ELSE: 'else';
 FOR: 'for';
 RETURN: 'return';
-NEW: 'new';//usado so para instanciar arranjos
 STRING: 'string';
 INT: 'int';
-FLOAT: 'float';
+DOUBLE: 'DOUBLE';
 WHILE: 'while';
 BOOLEAN: 'boolean';
 
@@ -149,8 +143,6 @@ LPAREN: '(';
 RPAREN: ')';
 LBRACE: '{';
 RBRACE: '}';
-LBRACKET: '[';
-RBRACKET: ']';
 SEMICOLON: ';';
 COMMA: ',';
 DOT: '.';
