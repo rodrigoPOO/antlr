@@ -4,7 +4,7 @@ grammar Gramatica;
 
 //teste: (println ';'| escopoclasse | expressao | metoddecl)+;
 
-teste: (programDecl)+;
+teste: programDecl+;
 
 programDecl: statement #comandoNormal
             | metoddecl #metodoDecl
@@ -101,7 +101,7 @@ factor: numero=INT_CONSTANT #NumeroInteiro
       | numero=DOUBLE_CONSTANT #NumeroReal
       //| STRING_CONSTANT #String
       | lvalue #ChamarLvalue
-      | LPAREN term RPAREN #Parentesis
+      | LPAREN expressao RPAREN #Parentesis
       ;
 
 retorno:RETURN expressao;

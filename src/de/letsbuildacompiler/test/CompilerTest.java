@@ -100,6 +100,7 @@ public class CompilerTest {
 	@DataProvider
 	public Object[][] provide_code_exceptedText(){
 		return new Object[][]{
+				
 				{"println(1+2);", "3"+System.lineSeparator()},
 				{"println(1);", "1"+System.lineSeparator()},
 				{"println(1+2+42);", "45"+System.lineSeparator()},
@@ -124,7 +125,42 @@ public class CompilerTest {
 				{"println(10%3);", "1"+System.lineSeparator()},
 				{"println(5%3);", "2"+System.lineSeparator()},
 				{"println(3+2);", "5"+System.lineSeparator()},
-				{"println(1.1+2.1);", "3.2"+System.lineSeparator()},
+				
+				/*teste comparacoes real*/
+				{"println(5.1>4);", "1"+System.lineSeparator()},
+				{"println(3.1>4);", "0"+System.lineSeparator()},
+				{"println(5.1>=5.1);", "1"+System.lineSeparator()},
+				{"println(5.2>=5.1);", "1"+System.lineSeparator()},
+				{"println(4.1>=5.1);", "0"+System.lineSeparator()},
+				//
+				{"println(4<5.1);", "1"+System.lineSeparator()},
+				{"println(4<3.1);", "0"+System.lineSeparator()},
+				{"println(5.0<=5.1);", "1"+System.lineSeparator()},
+				{"println(5.1<=4.1);", "0"+System.lineSeparator()},
+				//				
+				{"println(5.1==5.1);", "1"+System.lineSeparator()},
+				{"println(5.1==5.0);", "0"+System.lineSeparator()},
+				{"println(5.0!=5);", "0"+System.lineSeparator()},
+				{"println(5.1!=5);", "1"+System.lineSeparator()},
+
+				/*teste comparacoes inteiro*/
+				{"println(5>4);", "1"+System.lineSeparator()},
+				{"println(3>4);", "0"+System.lineSeparator()},
+				{"println(5>=5);", "1"+System.lineSeparator()},
+				{"println(4>=5);", "0"+System.lineSeparator()},
+				//
+				{"println(4<5);", "1"+System.lineSeparator()},
+				{"println(4<3);", "0"+System.lineSeparator()},
+				{"println(5<=5);", "1"+System.lineSeparator()},
+				{"println(5<=4);", "0"+System.lineSeparator()},
+				//				
+				{"println(5==5);", "1"+System.lineSeparator()},
+				{"println(5==4);", "0"+System.lineSeparator()},
+				{"println(5!=5);", "0"+System.lineSeparator()},
+				{"println(5!=4);", "1"+System.lineSeparator()},
+				
+				//criar mistura de testes com inteiros e doubles
+
 				
 				{"int foo; foo=42; println(foo);", "42"+System.lineSeparator()},
 				{"int foo; foo = 42; println(foo+2);", "44"+System.lineSeparator()},
@@ -137,6 +173,7 @@ public class CompilerTest {
 				{"int somar (int a,int b) {return a+b;}\nprintln(somar(111,211));","322"+System.lineSeparator()},
 				{"int somar (int a,int b) {return a+b;}\nint a;a=3;println(somar(111,211));","322"+System.lineSeparator()},
 				{"int a = 161;int b = 161;println(b+a == b+a);", "1"+System.lineSeparator()}
+				
 		};
 	}
 

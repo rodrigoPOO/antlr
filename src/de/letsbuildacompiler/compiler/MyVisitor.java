@@ -23,8 +23,13 @@ import de.letsbuildacompiler.parser.GramaticaParser.ComandoNormalContext;
 //import de.letsbuildacompiler.parser.GramaticaParser.ComandoNormalContext;
 import de.letsbuildacompiler.parser.GramaticaParser.DeclaracaoVariaveisContext;
 import de.letsbuildacompiler.parser.GramaticaParser.DeclararEAtribuirContext;
+import de.letsbuildacompiler.parser.GramaticaParser.DiferenteContext;
 import de.letsbuildacompiler.parser.GramaticaParser.DivisaoContext;
 import de.letsbuildacompiler.parser.GramaticaParser.EquivalenteContext;
+import de.letsbuildacompiler.parser.GramaticaParser.MaiorContext;
+import de.letsbuildacompiler.parser.GramaticaParser.MaiorOuEquivalenteContext;
+import de.letsbuildacompiler.parser.GramaticaParser.MenorContext;
+import de.letsbuildacompiler.parser.GramaticaParser.MenorOuEquivalenteContext;
 import de.letsbuildacompiler.parser.GramaticaParser.MetodcallContext;
 //import de.letsbuildacompiler.parser.GramaticaParser.MetodcallContext;
 import de.letsbuildacompiler.parser.GramaticaParser.MetoddeclContext;
@@ -52,7 +57,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		}
 		this.metodosDeclarados = metodosDeclarados;
 		/*
-		 * int double null string boolean + - * \/ %
+		 * int f null string boolean + - * \/ %
 		 * Operacoes em comentario sao operacoes perigosas melhor deixar desativado
 		 */
 		mapaOperacoes = new HashMap<>();
@@ -79,6 +84,38 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		mapaOperacoes.put("double*int", "double");
 		mapaOperacoes.put("double/int", "double");
 		//mapaOperacoes.put("double%int", "double");
+		
+		mapaOperacoes.put("int==int", "int");
+		mapaOperacoes.put("int!=int", "int");
+		mapaOperacoes.put("int>int", "int");
+		mapaOperacoes.put("int<int", "int");
+		mapaOperacoes.put("int>=int", "int");
+		mapaOperacoes.put("int<=int", "int");
+
+		mapaOperacoes.put("double==double", "double");
+		mapaOperacoes.put("double!=double", "double");
+		mapaOperacoes.put("double>double", "double");
+		mapaOperacoes.put("double<double", "double");
+		mapaOperacoes.put("double>=double", "double");
+		mapaOperacoes.put("double<=double", "double");
+		
+		mapaOperacoes.put("int==double", "double");
+		mapaOperacoes.put("int!=double", "double");
+		mapaOperacoes.put("int>double", "double");
+		mapaOperacoes.put("int<double", "double");
+		mapaOperacoes.put("int>=double", "double");
+		mapaOperacoes.put("int<=double", "double");
+		
+		mapaOperacoes.put("double==int", "double");
+		mapaOperacoes.put("double!=int", "double");
+		mapaOperacoes.put("double>int", "double");
+		mapaOperacoes.put("double<int", "double");
+		mapaOperacoes.put("double>=int", "double");
+		mapaOperacoes.put("double<=int", "double");
+		
+		mapaOperacoes.put("doublecomparedouble", "double");
+		mapaOperacoes.put("intcomparedouble", "double");
+		mapaOperacoes.put("doublecompareint", "double");
 
 		mapaOperacoes.put("string-string", "string");
 		mapaOperacoes.put("string+string", "string");
@@ -89,12 +126,15 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		String retorno = "	getstatic java/lang/System/out Ljava/io/PrintStream;\n"
 				+ visit(ctx.argument) + "\n";
 		if (pilhaTipos.peek().equals("int")) {
+			System.out.println("\n"+pilhaTipos);
 			retorno = retorno
 					+ "	invokevirtual java/io/PrintStream/println(I)V\n";
 		} else if (pilhaTipos.peek().equals("double")) {
+			System.out.println("\n"+pilhaTipos);
 			retorno = retorno
-					+ "	invokevirtual java/io/PrintStream/println(F)V\n";
+					+ "	invokevirtual java/io/PrintStream/println(D)V\n";
 		}
+		//acho que devo fazer um pop na pilha de tipos
 		return retorno;
 	}
 
@@ -139,8 +179,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	/* Tratado atribuicao de variaveis nao declaradas */
 	@Override
 	public String visitAtribuicao(AtribuicaoContext ctx) {
-		return visit(ctx.expr) + "\n" + "istore "
-				+ requireVariableIndex(ctx.variavel);
+		return visit(ctx.expr) + "\n" + "istore " + requireVariableIndex(ctx.variavel);
 	}
 
 	// ///////////////////////////////////lvalue///////////////////////////////////////
@@ -152,17 +191,173 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	}
 
 	// //////////////////////////////////////expressao///////////////////////////////////////
+	
+	@Override
+	public String visitMenor(MenorContext ctx) {
+		i = i + 2;
+		String retorno = visitChildren(ctx);
+		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+		if (pilhaTipos.peek().equals("int")) {
+			return retorno + "\n" + "if_icmplt " + "Label"
+					+ (i - 2) + "\n"// if topo igual 0 va para label true
+					// Label false
+					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
+					// Label true
+					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
+					// label Exit
+					+ "Label" + (i - 1) + ":\n";
+		}else{
+			pilhaTipos.pop();
+			pilhaTipos.push("int");
+			return retorno + "\n" + "dcmpg" + "\n" + "iflt " + "Label"
+					+ (i - 2) + "\n"// if topo igual 0 va para label true
+					// Label false
+					+ "ldc 1" + "\n" + "goto Label" + (i - 1) + "\n"
+					// Label true
+					+ "Label" + (i - 2) + ":\n" + "ldc 0" + "\n"
+					// label Exit
+					+ "Label" + (i - 1) + ":\n";
+		}
+	}
+	
+	@Override
+	public String visitMaior(MaiorContext ctx) {
+		i = i + 2;
+		String retorno = visitChildren(ctx);
+		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+		if (pilhaTipos.peek().equals("int")) {
+			return retorno + "\n" + "if_icmpgt " + "Label"
+					+ (i - 2) + "\n"// if topo igual 0 va para label true
+					// Label false
+					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
+					// Label true
+					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
+					// label Exit
+					+ "Label" + (i - 1) + ":\n";
+		}else{
+			pilhaTipos.pop();
+			pilhaTipos.push("int");
+			return retorno + "\n" + "dcmpg" + "\n" + "ifgt " + "Label"
+					+ (i - 2) + "\n"// if topo igual 0 va para label true
+					// Label false
+					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
+					// Label true
+					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
+					// label Exit
+					+ "Label" + (i - 1) + ":\n";
+		}
+	}
+	
+	@Override
+	public String visitMenorOuEquivalente(MenorOuEquivalenteContext ctx) {
+		i = i + 2;
+		String retorno = visitChildren(ctx);
+		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+		if (pilhaTipos.peek().equals("int")) {
+			return retorno + "\n" + "if_icmple " + "Label"
+					+ (i - 2) + "\n"// if topo igual 0 va para label true
+					// Label false
+					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
+					// Label true
+					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
+					// label Exit
+					+ "Label" + (i - 1) + ":\n";
+		}else{
+			pilhaTipos.pop();
+			pilhaTipos.push("int");
+			return retorno + "\n" + "dcmpg" + "\n" + "ifle " + "Label"
+					+ (i - 2) + "\n"// if topo igual 0 va para label true
+					// Label false
+					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
+					// Label true
+					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
+					// label Exit
+					+ "Label" + (i - 1) + ":\n";
+		}
+	}
+	
+	@Override
+	public String visitMaiorOuEquivalente(MaiorOuEquivalenteContext ctx) {
+		i = i + 2;
+		String retorno = visitChildren(ctx);
+		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+		if (pilhaTipos.peek().equals("int")) {
+			return retorno + "\n" + "if_icmpge " + "Label"
+					+ (i - 2) + "\n"// if topo igual 0 va para label true
+					// Label false
+					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
+					// Label true
+					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
+					// label Exit
+					+ "Label" + (i - 1) + ":\n";
+		}else{
+			pilhaTipos.pop();
+			pilhaTipos.push("int");
+			return retorno + "\n" + "dcmpg" + "\n" + "ifge " + "Label"
+					+ (i - 2) + "\n"// if topo igual 0 va para label true
+					// Label false
+					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
+					// Label true
+					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
+					// label Exit
+					+ "Label" + (i - 1) + ":\n";
+		}
+	}
+	
 	@Override
 	public String visitEquivalente(EquivalenteContext ctx) {
 		i = i + 2;
-		return visitChildren(ctx) + "\n" + "isub" + "\n" + "ifeq " + "Label"
-				+ (i - 2) + "\n"// if topo igual 0 va para label true
-				// Label false
-				+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
-				// Label true
-				+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
-				// label Exit
-				+ "Label" + (i - 1) + ":\n";
+		String retorno = visitChildren(ctx);
+		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+		if (pilhaTipos.peek().equals("int")) {
+			return retorno + "\n" + "if_icmpeq " + "Label"
+					+ (i - 2) + "\n"// if topo igual 0 va para label true
+					// Label false
+					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
+					// Label true
+					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
+					// label Exit
+					+ "Label" + (i - 1) + ":\n";
+		}else{
+			pilhaTipos.pop();
+			pilhaTipos.push("int");
+			return retorno + "\n" + "dcmpg" + "\n" + "ifeq " + "Label"
+					+ (i - 2) + "\n"// if topo igual 0 va para label true
+					// Label false
+					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
+					// Label true
+					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
+					// label Exit
+					+ "Label" + (i - 1) + ":\n";
+		}
+	}
+	
+	@Override
+	public String visitDiferente(DiferenteContext ctx) {
+		i = i + 2;
+		String retorno = visitChildren(ctx);
+		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+		if (pilhaTipos.peek().equals("int")) {
+			return retorno + "\n" + "if_icmpne " + "Label"
+					+ (i - 2) + "\n"// if topo igual 0 va para label true
+					// Label false
+					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
+					// Label true
+					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
+					// label Exit
+					+ "Label" + (i - 1) + ":\n";
+		}else{
+			pilhaTipos.pop();
+			pilhaTipos.push("int");
+			return retorno + "\n" + "dcmpg" + "\n" + "ifeq " + "Label"
+					+ (i - 2) + "\n"// if topo igual 0 va para label true
+					// Label false
+					+ "ldc 1" + "\n" + "goto Label" + (i - 1) + "\n"
+					// Label true
+					+ "Label" + (i - 2) + ":\n" + "ldc 0" + "\n"
+					// label Exit
+					+ "Label" + (i - 1) + ":\n";
+		}
 	}
 
 	// //////////////////////////////////////term///////////////////////////////////////////
@@ -170,11 +365,10 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	public String visitDivisao(DivisaoContext ctx) {
 		String retorno = visitChildren(ctx);
 		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
-		
 		if (pilhaTipos.peek().equals("int")) {
 			retorno = retorno + "\n" + "idiv";
 		} else if (pilhaTipos.peek().equals("double")) {
-			retorno = retorno + "\n" + "fdiv";
+			retorno = retorno + "\n" + "ddiv";
 		}
 		return retorno;
 	}
@@ -187,7 +381,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		if (pilhaTipos.peek().equals("int")) {
 			retorno = retorno + "\n" + "imul";
 		} else if (pilhaTipos.peek().equals("double")) {
-			retorno = retorno + "\n" + "fmul";
+			retorno = retorno + "\n" + "dmul";
 		}
 		return retorno;
 	}
@@ -200,7 +394,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		if (pilhaTipos.peek().equals("int")) {
 			retorno = retorno + "\n" + "irem";
 		} else if (pilhaTipos.peek().equals("double")) {
-			retorno = retorno + "\n" + "frem";
+			retorno = retorno + "\n" + "drem";
 		}
 		return retorno;
 	}
@@ -213,7 +407,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		if (pilhaTipos.peek().equals("int")) {
 			retorno = retorno + "\n" + "isub";
 		} else if (pilhaTipos.peek().equals("double")) {
-			retorno = retorno + "\n" + "fsub";
+			retorno = retorno + "\n" + "dsub";
 		}
 		return retorno;
 	}
@@ -226,7 +420,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		if (pilhaTipos.peek().equals("int")) {
 			retorno = retorno + "\n" + "iadd";
 		} else if (pilhaTipos.peek().equals("double")) {
-			retorno = retorno + "\n" + "fadd";
+			retorno = retorno + "\n" + "dadd";
 		}
 		return retorno;
 	}
@@ -241,7 +435,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	@Override
 	public String visitNumeroReal(NumeroRealContext ctx) {
 		pilhaTipos.push("double");
-		return "ldc_w " + ctx.numero.getText();
+		return "ldc2_w " + ctx.numero.getText();
 	}
 
 	// ///////////////////////////////////////////////////////////////////////////////////////
@@ -260,8 +454,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		// verificar se ha mapeamento
 		String direita = pilhaTipos.pop();
 		String esquerda = pilhaTipos.pop();
-		String resultadoOP = mapaOperacoes.get(esquerda + operacao.getText()
-				+ direita);
+		String resultadoOP = mapaOperacoes.get(esquerda + operacao.getText() + direita);
 		String retorno = "";
 		if (resultadoOP == null) {
 			throw new ExcecaoTipoNaoCompativel(token1, token2, operacao);
@@ -274,13 +467,13 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 				
 				//convert int to double
 				if(esquerda.equalsIgnoreCase("int")&&resultadoOP.equals("double"))
-				retorno = "\n"+"swap"+"\n"+"i2f"+"\n"+"swap";
+					retorno = "\n"+"dup2_x1"+"\n"+"pop2"+"\n"+"i2d";
 			} else {
 				// converter direita para o mesmo tipo da esquerda
 				
 				//convert int to double
 				if(direita.equalsIgnoreCase("int")&&resultadoOP.equals("double"))
-					retorno = "\n"+"i2f";
+					retorno = "\n"+"i2d";
 			}
 		}
 		pilhaTipos.push(resultadoOP);
@@ -331,8 +524,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			instrucoes += args + "\n";
 		}
 
-		instrucoes += "invokestatic Gramatica/" + ctx.nomeMetodo.getText()
-				+ "(";
+		instrucoes += "invokestatic Gramatica/" + ctx.nomeMetodo.getText() + "(";
 
 		instrucoes += stringRepeat("I", numeroArg);
 		instrucoes += ")I\n";
@@ -370,6 +562,5 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			resultado.append(param);
 		}
 		return resultado.toString();
-
 	}
 }
