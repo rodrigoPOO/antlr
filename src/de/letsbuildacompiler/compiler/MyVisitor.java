@@ -26,6 +26,9 @@ import de.letsbuildacompiler.parser.GramaticaParser.DeclararEAtribuirContext;
 import de.letsbuildacompiler.parser.GramaticaParser.DiferenteContext;
 import de.letsbuildacompiler.parser.GramaticaParser.DivisaoContext;
 import de.letsbuildacompiler.parser.GramaticaParser.EquivalenteContext;
+import de.letsbuildacompiler.parser.GramaticaParser.IfCompletoContext;
+import de.letsbuildacompiler.parser.GramaticaParser.IfIncompletoContext;
+import de.letsbuildacompiler.parser.GramaticaParser.IfstatementContext;
 import de.letsbuildacompiler.parser.GramaticaParser.MaiorContext;
 import de.letsbuildacompiler.parser.GramaticaParser.MaiorOuEquivalenteContext;
 import de.letsbuildacompiler.parser.GramaticaParser.MenorContext;
@@ -126,15 +129,14 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		String retorno = "	getstatic java/lang/System/out Ljava/io/PrintStream;\n"
 				+ visit(ctx.argument) + "\n";
 		if (pilhaTipos.peek().equals("int")) {
-			System.out.println("\n"+pilhaTipos);
+			//System.out.println("\n"+pilhaTipos);
 			retorno = retorno
 					+ "	invokevirtual java/io/PrintStream/println(I)V\n";
 		} else if (pilhaTipos.peek().equals("double")) {
-			System.out.println("\n"+pilhaTipos);
+			//System.out.println("\n"+pilhaTipos);
 			retorno = retorno
 					+ "	invokevirtual java/io/PrintStream/println(D)V\n";
 		}
-		//acho que devo fazer um pop na pilha de tipos
 		return retorno;
 	}
 
@@ -192,175 +194,216 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 
 	// //////////////////////////////////////expressao///////////////////////////////////////
 	
-	@Override
-	public String visitMenor(MenorContext ctx) {
-		i = i + 2;
-		String retorno = visitChildren(ctx);
-		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
-		if (pilhaTipos.peek().equals("int")) {
-			return retorno + "\n" + "if_icmplt " + "Label"
-					+ (i - 2) + "\n"// if topo igual 0 va para label true
-					// Label false
-					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
-					// Label true
-					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
-					// label Exit
-					+ "Label" + (i - 1) + ":\n";
-		}else{
-			pilhaTipos.pop();
-			pilhaTipos.push("int");
-			return retorno + "\n" + "dcmpg" + "\n" + "iflt " + "Label"
-					+ (i - 2) + "\n"// if topo igual 0 va para label true
-					// Label false
-					+ "ldc 1" + "\n" + "goto Label" + (i - 1) + "\n"
-					// Label true
-					+ "Label" + (i - 2) + ":\n" + "ldc 0" + "\n"
-					// label Exit
-					+ "Label" + (i - 1) + ":\n";
+		@Override
+		public String visitMenor(MenorContext ctx) {
+			i = i + 2;
+			int temp = i;
+			String retorno = visitChildren(ctx);
+			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+			if (pilhaTipos.peek().equals("int")) {
+				return retorno + "\n" + "if_icmplt " + "Label"
+						+ (temp - 2) + "\n"// if topo igual 0 va para label true
+						// Label false
+						+ "ldc 0" + "\n" + "goto Label" + (temp - 1) + "\n"
+						// Label true
+						+ "Label" + (temp - 2) + ":\n" + "ldc 1" + "\n"
+						// label Exit
+						+ "Label" + (temp - 1) + ":\n";
+			}else{
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
+				return retorno + "\n" + "dcmpg" + "\n" + "iflt " + "Label"
+						+ (temp - 2) + "\n"// if topo igual 0 va para label true
+						// Label false
+						+ "ldc 1" + "\n" + "goto Label" + (temp - 1) + "\n"
+						// Label true
+						+ "Label" + (temp - 2) + ":\n" + "ldc 0" + "\n"
+						// label Exit
+						+ "Label" + (temp - 1) + ":\n";
+			}
 		}
+		
+		@Override
+		public String visitMaior(MaiorContext ctx) {
+			i = i + 2;
+			int temp = i;
+			String retorno = visitChildren(ctx);
+			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+			if (pilhaTipos.peek().equals("int")) {
+				return retorno + "\n" + "if_icmpgt " + "Label"
+						+ (temp - 2) + "\n"// if topo igual 0 va para label true
+						// Label false
+						+ "ldc 0" + "\n" + "goto Label" + (temp - 1) + "\n"
+						// Label true
+						+ "Label" + (temp - 2) + ":\n" + "ldc 1" + "\n"
+						// label Exit
+						+ "Label" + (temp - 1) + ":\n";
+			}else{
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
+				return retorno + "\n" + "dcmpg" + "\n" + "ifgt " + "Label"
+						+ (temp - 2) + "\n"// if topo igual 0 va para label true
+						// Label false
+						+ "ldc 0" + "\n" + "goto Label" + (temp - 1) + "\n"
+						// Label true
+						+ "Label" + (temp - 2) + ":\n" + "ldc 1" + "\n"
+						// label Exit
+						+ "Label" + (temp - 1) + ":\n";
+			}
+		}
+		
+		@Override
+		public String visitMenorOuEquivalente(MenorOuEquivalenteContext ctx) {
+			i = i + 2;
+			int temp = i;
+			String retorno = visitChildren(ctx);
+			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+			if (pilhaTipos.peek().equals("int")) {
+				return retorno + "\n" + "if_icmple " + "Label"
+						+ (temp - 2) + "\n"// if topo igual 0 va para label true
+						// Label false
+						+ "ldc 0" + "\n" + "goto Label" + (temp - 1) + "\n"
+						// Label true
+						+ "Label" + (temp - 2) + ":\n" + "ldc 1" + "\n"
+						// label Exit
+						+ "Label" + (temp - 1) + ":\n";
+			}else{
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
+				return retorno + "\n" + "dcmpg" + "\n" + "ifle " + "Label"
+						+ (temp - 2) + "\n"// if topo igual 0 va para label true
+						// Label false
+						+ "ldc 0" + "\n" + "goto Label" + (temp - 1) + "\n"
+						// Label true
+						+ "Label" + (temp - 2) + ":\n" + "ldc 1" + "\n"
+						// label Exit
+						+ "Label" + (temp - 1) + ":\n";
+			}
+		}
+		
+		@Override
+		public String visitMaiorOuEquivalente(MaiorOuEquivalenteContext ctx) {
+			i = i + 2;
+			int temp = i;
+			String retorno = visitChildren(ctx);
+			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+			if (pilhaTipos.peek().equals("int")) {
+				return retorno + "\n" + "if_icmpge " + "Label"
+						+ (temp - 2) + "\n"// if topo igual 0 va para label true
+						// Label false
+						+ "ldc 0" + "\n" + "goto Label" + (temp - 1) + "\n"
+						// Label true
+						+ "Label" + (temp - 2) + ":\n" + "ldc 1" + "\n"
+						// label Exit
+						+ "Label" + (temp - 1) + ":\n";
+			}else{
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
+				return retorno + "\n" + "dcmpg" + "\n" + "ifge " + "Label"
+						+ (temp - 2) + "\n"// if topo igual 0 va para label true
+						// Label false
+						+ "ldc 0" + "\n" + "goto Label" + (temp - 1) + "\n"
+						// Label true
+						+ "Label" + (temp - 2) + ":\n" + "ldc 1" + "\n"
+						// label Exit
+						+ "Label" + (temp - 1) + ":\n";
+			}
+		}
+		
+		@Override
+		public String visitEquivalente(EquivalenteContext ctx) {
+			i = i + 2;
+			int temp = i;
+			String retorno = visitChildren(ctx);
+			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+			if (pilhaTipos.peek().equals("int")) {
+				return retorno + "\n" + "if_icmpeq " + "Label"
+						+ (temp - 2) + "\n"// if topo igual 0 va para label true
+						// Label false
+						+ "ldc 0" + "\n" + "goto Label" + (temp - 1) + "\n"
+						// Label true
+						+ "Label" + (temp - 2) + ":\n" + "ldc 1" + "\n"
+						// label Exit
+						+ "Label" + (temp - 1) + ":\n";
+			}else{
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
+				return retorno + "\n" + "dcmpg" + "\n" + "ifeq " + "Label"
+						+ (temp - 2) + "\n"// if topo igual 0 va para label true
+						// Label false
+						+ "ldc 0" + "\n" + "goto Label" + (temp - 1) + "\n"
+						// Label true
+						+ "Label" + (temp - 2) + ":\n" + "ldc 1" + "\n"
+						// label Exit
+						+ "Label" + (temp - 1) + ":\n";
+			}
+		}
+		
+		@Override
+		public String visitDiferente(DiferenteContext ctx) {
+			i = i + 2;
+			int temp = i;
+			String retorno = visitChildren(ctx);
+			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+			if (pilhaTipos.peek().equals("int")) {
+				return retorno + "\n" + "if_icmpne " + "Label"
+						+ (temp - 2) + "\n"// if topo igual 0 va para label true
+						// Label false
+						+ "ldc 0" + "\n" + "goto Label" + (temp - 1) + "\n"
+						// Label true
+						+ "Label" + (temp - 2) + ":\n" + "ldc 1" + "\n"
+						// label Exit
+						+ "Label" + (temp - 1) + ":\n";
+			}else{
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
+				return retorno + "\n" + "dcmpg" + "\n" + "ifeq " + "Label"
+						+ (temp - 2) + "\n"// if topo igual 0 va para label true
+						// Label false
+						+ "ldc 1" + "\n" + "goto Label" + (temp - 1) + "\n"
+						// Label true
+						+ "Label" + (temp - 2) + ":\n" + "ldc 0" + "\n"
+						// label Exit
+						+ "Label" + (temp - 1) + ":\n";
+			}
+		}
+		
+	//////////////////////////////////////////IF///////////////////////////////////////////
+		
+	@Override
+	public String visitIfIncompleto(IfIncompletoContext ctx){
+		i = i + 1;
+		int temp = i;
+		String retorno = visit(ctx.expressao());
+		if (pilhaTipos.pop().equals("int")) {
+			System.out.println("Erro: Instrucoes de desvio verificam apenas condicoes booleanas,"
+					+ " e a pilha de tipos nao esta indicando valor booleano.");
+		}
+		retorno = "ifeq " + "Label"	+ (temp - 1) + "\n";
+		retorno = retorno + visit(ctx.statement())+ "Label" + (temp - 1) + ":\n";
+		return retorno;
 	}
 	
 	@Override
-	public String visitMaior(MaiorContext ctx) {
+	public String visitIfCompleto(IfCompletoContext ctx) {
 		i = i + 2;
-		String retorno = visitChildren(ctx);
-		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
-		if (pilhaTipos.peek().equals("int")) {
-			return retorno + "\n" + "if_icmpgt " + "Label"
-					+ (i - 2) + "\n"// if topo igual 0 va para label true
-					// Label false
-					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
-					// Label true
-					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
-					// label Exit
-					+ "Label" + (i - 1) + ":\n";
-		}else{
-			pilhaTipos.pop();
-			pilhaTipos.push("int");
-			return retorno + "\n" + "dcmpg" + "\n" + "ifgt " + "Label"
-					+ (i - 2) + "\n"// if topo igual 0 va para label true
-					// Label false
-					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
-					// Label true
-					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
-					// label Exit
-					+ "Label" + (i - 1) + ":\n";
+		int temp = i;
+		String retorno = visit(ctx.expressao());
+		if (pilhaTipos.pop().equals("int")) {
+			System.out.println("Erro: Instrucoes de desvio verificam apenas condicoes booleanas,"
+					+ " e a pilha de tipos nao esta indicando valor booleano.");
 		}
-	}
-	
-	@Override
-	public String visitMenorOuEquivalente(MenorOuEquivalenteContext ctx) {
-		i = i + 2;
-		String retorno = visitChildren(ctx);
-		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
-		if (pilhaTipos.peek().equals("int")) {
-			return retorno + "\n" + "if_icmple " + "Label"
-					+ (i - 2) + "\n"// if topo igual 0 va para label true
-					// Label false
-					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
-					// Label true
-					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
-					// label Exit
-					+ "Label" + (i - 1) + ":\n";
-		}else{
-			pilhaTipos.pop();
-			pilhaTipos.push("int");
-			return retorno + "\n" + "dcmpg" + "\n" + "ifle " + "Label"
-					+ (i - 2) + "\n"// if topo igual 0 va para label true
-					// Label false
-					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
-					// Label true
-					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
-					// label Exit
-					+ "Label" + (i - 1) + ":\n";
-		}
-	}
-	
-	@Override
-	public String visitMaiorOuEquivalente(MaiorOuEquivalenteContext ctx) {
-		i = i + 2;
-		String retorno = visitChildren(ctx);
-		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
-		if (pilhaTipos.peek().equals("int")) {
-			return retorno + "\n" + "if_icmpge " + "Label"
-					+ (i - 2) + "\n"// if topo igual 0 va para label true
-					// Label false
-					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
-					// Label true
-					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
-					// label Exit
-					+ "Label" + (i - 1) + ":\n";
-		}else{
-			pilhaTipos.pop();
-			pilhaTipos.push("int");
-			return retorno + "\n" + "dcmpg" + "\n" + "ifge " + "Label"
-					+ (i - 2) + "\n"// if topo igual 0 va para label true
-					// Label false
-					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
-					// Label true
-					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
-					// label Exit
-					+ "Label" + (i - 1) + ":\n";
-		}
-	}
-	
-	@Override
-	public String visitEquivalente(EquivalenteContext ctx) {
-		i = i + 2;
-		String retorno = visitChildren(ctx);
-		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
-		if (pilhaTipos.peek().equals("int")) {
-			return retorno + "\n" + "if_icmpeq " + "Label"
-					+ (i - 2) + "\n"// if topo igual 0 va para label true
-					// Label false
-					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
-					// Label true
-					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
-					// label Exit
-					+ "Label" + (i - 1) + ":\n";
-		}else{
-			pilhaTipos.pop();
-			pilhaTipos.push("int");
-			return retorno + "\n" + "dcmpg" + "\n" + "ifeq " + "Label"
-					+ (i - 2) + "\n"// if topo igual 0 va para label true
-					// Label false
-					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
-					// Label true
-					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
-					// label Exit
-					+ "Label" + (i - 1) + ":\n";
-		}
-	}
-	
-	@Override
-	public String visitDiferente(DiferenteContext ctx) {
-		i = i + 2;
-		String retorno = visitChildren(ctx);
-		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
-		if (pilhaTipos.peek().equals("int")) {
-			return retorno + "\n" + "if_icmpne " + "Label"
-					+ (i - 2) + "\n"// if topo igual 0 va para label true
-					// Label false
-					+ "ldc 0" + "\n" + "goto Label" + (i - 1) + "\n"
-					// Label true
-					+ "Label" + (i - 2) + ":\n" + "ldc 1" + "\n"
-					// label Exit
-					+ "Label" + (i - 1) + ":\n";
-		}else{
-			pilhaTipos.pop();
-			pilhaTipos.push("int");
-			return retorno + "\n" + "dcmpg" + "\n" + "ifeq " + "Label"
-					+ (i - 2) + "\n"// if topo igual 0 va para label true
-					// Label false
-					+ "ldc 1" + "\n" + "goto Label" + (i - 1) + "\n"
-					// Label true
-					+ "Label" + (i - 2) + ":\n" + "ldc 0" + "\n"
-					// label Exit
-					+ "Label" + (i - 1) + ":\n";
-		}
+		retorno = retorno + "ifeq " + "Label"	+ (temp - 2) + "\n";
+		retorno = retorno + visit(ctx.comand1);
+		retorno = retorno + "goto Label" + (temp - 1) + "\n";
+		retorno = retorno + "Label" + (temp - 2) + ":\n";//else
+		retorno = retorno + visit(ctx.comand2);
+		retorno = retorno + "Label" + (temp - 1) + ":\n";//exit
+		return retorno;
 	}
 
 	// //////////////////////////////////////term///////////////////////////////////////////
+	
 	@Override
 	public String visitDivisao(DivisaoContext ctx) {
 		String retorno = visitChildren(ctx);

@@ -9,9 +9,11 @@ teste: programDecl+;
 programDecl: statement #comandoNormal
             | metoddecl #metodoDecl
             ;
+
 statement: println ';' 
         | escopoclasse 
-        | expressao;
+        | expressao
+        | ifstatement;
 println: 'println(' argument=expressao ')';
 
 //programa: classe+;
@@ -106,7 +108,9 @@ factor: numero=INT_CONSTANT #NumeroInteiro
 
 retorno:RETURN expressao;
 
-ifstatement:IF LPAREN expressao RPAREN comando (ELSE comando)?;
+ifstatement: IF LPAREN expressao RPAREN LBRACE statement RBRACE #IfIncompleto
+            | IF LPAREN expressao RPAREN LBRACE comand1=statement RBRACE ELSE LBRACE comand2=statement RBRACE #IfCompleto
+            ;
 
 forstatement:FOR LPAREN INT atrib SEMICOLON expressao SEMICOLON atrib RPAREN comando;
 
