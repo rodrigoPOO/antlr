@@ -1,7 +1,6 @@
 grammar Gramatica;
 
 //declaracao programa
-
 //teste: (println ';'| escopoclasse | expressao | metoddecl)+;
 
 teste: programDecl+;

@@ -466,7 +466,6 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	public String visitSubtracao(SubtracaoContext ctx) {
 		String retorno = visitChildren(ctx);
 		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
-		
 		if (pilhaTipos.pop().equals("int")) {
 			retorno = retorno + "\n" + "isub";
 		} else if (pilhaTipos.pop().equals("double")) {

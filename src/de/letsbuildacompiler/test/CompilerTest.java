@@ -133,6 +133,7 @@ public class CompilerTest {
 				{"println(5.1>=5.1);", "1"+System.lineSeparator()},
 				{"println(5.2>=5.1);", "1"+System.lineSeparator()},
 				{"println(4.1>=5.1);", "0"+System.lineSeparator()},
+				
 				//
 				{"println(4<5.1);", "1"+System.lineSeparator()},
 				{"println(4<3.1);", "0"+System.lineSeparator()},
