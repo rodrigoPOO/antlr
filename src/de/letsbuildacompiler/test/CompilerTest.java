@@ -126,7 +126,8 @@ public class CompilerTest {
 				{"println(5%3);", "2"+System.lineSeparator()},
 				{"println(3+2);", "5"+System.lineSeparator()},
 				
-				/*teste comparacoes real*/
+				//teste comparacoes real
+			
 				{"println(5.1>4);", "1"+System.lineSeparator()},
 				{"println(3.1>4);", "0"+System.lineSeparator()},
 				{"println(5.1>=5.1);", "1"+System.lineSeparator()},
@@ -143,7 +144,7 @@ public class CompilerTest {
 				{"println(5.0!=5);", "0"+System.lineSeparator()},
 				{"println(5.1!=5);", "1"+System.lineSeparator()},
 
-				/*teste comparacoes inteiro*/
+				//teste comparacoes inteiro
 				{"println(5>4);", "1"+System.lineSeparator()},
 				{"println(3>4);", "0"+System.lineSeparator()},
 				{"println(5>=5);", "1"+System.lineSeparator()},
@@ -159,10 +160,10 @@ public class CompilerTest {
 				{"println(5!=5);", "0"+System.lineSeparator()},
 				{"println(5!=4);", "1"+System.lineSeparator()},
 				
-				//criar mistura de testes com inteiros e doubles
-
-				
+				{"if(1==1){println(4<3.1);}else{println(322);}", "0"+System.lineSeparator()},
+				{"if(1==2){println(1<3.1);}else{println(322);}", "322"+System.lineSeparator()},
 				{"int foo; foo=42; println(foo);", "42"+System.lineSeparator()},
+				
 				{"int foo; foo = 42; println(foo+2);", "44"+System.lineSeparator()},
 				{"int a; int b; a = 2; b = 5; println(a+b);", "7"+System.lineSeparator()},				
 				{"int foo=42; println(foo);", "42"+System.lineSeparator()},
@@ -170,9 +171,9 @@ public class CompilerTest {
 				{"int a; int b = 5; a = 2;a =5; println(a+b);", "10"+System.lineSeparator()},
 				{"int randomNumber (){return 322;} \nprintln(randomNumber());", "322"+System.lineSeparator()},
 				{"int randomNumber (){int a; a = 322;\nreturn a;}\nprintln(randomNumber());int a; a = 4;println(a);", "322"+System.lineSeparator()+"4"+System.lineSeparator()},
+				{"int a = 161;int b = 161;println(b+a == b+a);", "1"+System.lineSeparator()},
 				{"int somar (int a,int b) {return a+b;}\nprintln(somar(111,211));","322"+System.lineSeparator()},
 				{"int somar (int a,int b) {return a+b;}\nint a;a=3;println(somar(111,211));","322"+System.lineSeparator()},
-				{"int a = 161;int b = 161;println(b+a == b+a);", "1"+System.lineSeparator()}
 				
 		};
 	}

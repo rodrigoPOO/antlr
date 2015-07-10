@@ -39,7 +39,7 @@ public class Main {
 	}
 
 	private static String createJasminFile(String instructions){
-		return ".class public Gramatica\n" + 
+		return "\n.class public Gramatica\n" + 
 				".super java/lang/Object\n" + 				
 				instructions;
 	}

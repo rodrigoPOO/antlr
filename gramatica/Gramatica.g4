@@ -35,10 +35,10 @@ vardecl:tipo=tipoDeclarar nomeVariavel=IDENT #DeclaracaoVariaveis;
 tipoDeclarar: INT | DOUBLE | STRING | BOOLEAN;
 
 /*Declaracao seguida de atribuicao*/
-vardeclatrib:tipo=tipoDeclarar variavel=IDENT operacao=ASSIGN valor=term #DeclararEAtribuir;//para o caso de int a = bola[2];
+vardeclatrib:tipo=tipoDeclarar variavel=IDENT operacao=ASSIGN valor=expressao #DeclararEAtribuir;//para o caso de int a = bola[2];
 
 /*Atribuicao*/
-atrib: variavel=IDENT operacao=ASSIGN expr=expressao #Atribuicao;//ident[2*i] = x;
+atrib: variavel=IDENT operacao=ASSIGN expr=expressao #Atribuicao;
 
 lvalue: identificador=IDENT #CarregarValor;//ident[2*i];
 

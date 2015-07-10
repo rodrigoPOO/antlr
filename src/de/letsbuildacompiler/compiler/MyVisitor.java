@@ -1,18 +1,14 @@
 package de.letsbuildacompiler.compiler;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 
-import org.antlr.v4.parse.ANTLRParser.throwsSpec_return;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import de.letsbuildacompiler.compiler.exceptions.ExcecaoTipoNaoCompativel;
 import de.letsbuildacompiler.compiler.exceptions.ExcecaoTipoRegra;
-import de.letsbuildacompiler.compiler.exceptions.FunctionAlreadyDefinedException;
 import de.letsbuildacompiler.compiler.exceptions.UndeclaredVariableException;
 import de.letsbuildacompiler.compiler.exceptions.UndefinedFunction;
 import de.letsbuildacompiler.compiler.exceptions.VariableAlreadyDefinedException;
@@ -20,7 +16,6 @@ import de.letsbuildacompiler.parser.GramaticaBaseVisitor;
 import de.letsbuildacompiler.parser.GramaticaParser.AtribuicaoContext;
 import de.letsbuildacompiler.parser.GramaticaParser.CarregarValorContext;
 import de.letsbuildacompiler.parser.GramaticaParser.ComandoNormalContext;
-//import de.letsbuildacompiler.parser.GramaticaParser.ComandoNormalContext;
 import de.letsbuildacompiler.parser.GramaticaParser.DeclaracaoVariaveisContext;
 import de.letsbuildacompiler.parser.GramaticaParser.DeclararEAtribuirContext;
 import de.letsbuildacompiler.parser.GramaticaParser.DiferenteContext;
@@ -28,13 +23,11 @@ import de.letsbuildacompiler.parser.GramaticaParser.DivisaoContext;
 import de.letsbuildacompiler.parser.GramaticaParser.EquivalenteContext;
 import de.letsbuildacompiler.parser.GramaticaParser.IfCompletoContext;
 import de.letsbuildacompiler.parser.GramaticaParser.IfIncompletoContext;
-import de.letsbuildacompiler.parser.GramaticaParser.IfstatementContext;
 import de.letsbuildacompiler.parser.GramaticaParser.MaiorContext;
 import de.letsbuildacompiler.parser.GramaticaParser.MaiorOuEquivalenteContext;
 import de.letsbuildacompiler.parser.GramaticaParser.MenorContext;
 import de.letsbuildacompiler.parser.GramaticaParser.MenorOuEquivalenteContext;
 import de.letsbuildacompiler.parser.GramaticaParser.MetodcallContext;
-//import de.letsbuildacompiler.parser.GramaticaParser.MetodcallContext;
 import de.letsbuildacompiler.parser.GramaticaParser.MetoddeclContext;
 import de.letsbuildacompiler.parser.GramaticaParser.ModuloContext;
 import de.letsbuildacompiler.parser.GramaticaParser.MultiplicacaoContext;
@@ -128,15 +121,16 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	public String visitPrintln(PrintlnContext ctx) {
 		String retorno = "	getstatic java/lang/System/out Ljava/io/PrintStream;\n"
 				+ visit(ctx.argument) + "\n";
-		if (pilhaTipos.peek().equals("int")) {
+		if (pilhaTipos.pop().equals("int")) {
 			//System.out.println("\n"+pilhaTipos);
 			retorno = retorno
 					+ "	invokevirtual java/io/PrintStream/println(I)V\n";
-		} else if (pilhaTipos.peek().equals("double")) {
+		} else if (pilhaTipos.pop().equals("double")) {
 			//System.out.println("\n"+pilhaTipos);
 			retorno = retorno
 					+ "	invokevirtual java/io/PrintStream/println(D)V\n";
 		}
+		System.out.println("\n"+pilhaTipos);
 		return retorno;
 	}
 
@@ -169,11 +163,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			throw new ExcecaoTipoRegra(ctx.variavel.getText(), ctx.operacao,
 					ctx.tipo.getText(), tipoEncontrado);
 		}
-		variables.put(ctx.variavel.getText(), variables.size());// declarar
-																// variavel
+		variables.put(ctx.variavel.getText(), variables.size());
 		tiposDeclarados.put(ctx.variavel.getText(), ctx.tipo.getText());
-		retorno = retorno + "\n" + "istore "
-				+ requireVariableIndex(ctx.variavel);
+		retorno = retorno + "\n" + "istore " + requireVariableIndex(ctx.variavel);
 		return retorno;
 	}
 
@@ -181,7 +173,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	/* Tratado atribuicao de variaveis nao declaradas */
 	@Override
 	public String visitAtribuicao(AtribuicaoContext ctx) {
-		return visit(ctx.expr) + "\n" + "istore " + requireVariableIndex(ctx.variavel);
+		String retorno = visit(ctx.expr) + "\n" + "istore " + requireVariableIndex(ctx.variavel);
+		pilhaTipos.pop();//talves isso gere bugs no futuro
+		return retorno;
 	}
 
 	// ///////////////////////////////////lvalue///////////////////////////////////////
@@ -201,6 +195,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			String retorno = visitChildren(ctx);
 			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
 			if (pilhaTipos.peek().equals("int")) {
+				pilhaTipos.pop();
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
 				return retorno + "\n" + "if_icmplt " + "Label"
 						+ (temp - 2) + "\n"// if topo igual 0 va para label true
 						// Label false
@@ -210,6 +207,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 						// label Exit
 						+ "Label" + (temp - 1) + ":\n";
 			}else{
+				pilhaTipos.pop();
 				pilhaTipos.pop();
 				pilhaTipos.push("int");
 				return retorno + "\n" + "dcmpg" + "\n" + "iflt " + "Label"
@@ -230,6 +228,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			String retorno = visitChildren(ctx);
 			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
 			if (pilhaTipos.peek().equals("int")) {
+				pilhaTipos.pop();
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
 				return retorno + "\n" + "if_icmpgt " + "Label"
 						+ (temp - 2) + "\n"// if topo igual 0 va para label true
 						// Label false
@@ -239,6 +240,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 						// label Exit
 						+ "Label" + (temp - 1) + ":\n";
 			}else{
+				pilhaTipos.pop();
 				pilhaTipos.pop();
 				pilhaTipos.push("int");
 				return retorno + "\n" + "dcmpg" + "\n" + "ifgt " + "Label"
@@ -259,6 +261,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			String retorno = visitChildren(ctx);
 			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
 			if (pilhaTipos.peek().equals("int")) {
+				pilhaTipos.pop();
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
 				return retorno + "\n" + "if_icmple " + "Label"
 						+ (temp - 2) + "\n"// if topo igual 0 va para label true
 						// Label false
@@ -268,6 +273,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 						// label Exit
 						+ "Label" + (temp - 1) + ":\n";
 			}else{
+				pilhaTipos.pop();
 				pilhaTipos.pop();
 				pilhaTipos.push("int");
 				return retorno + "\n" + "dcmpg" + "\n" + "ifle " + "Label"
@@ -288,6 +294,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			String retorno = visitChildren(ctx);
 			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
 			if (pilhaTipos.peek().equals("int")) {
+				pilhaTipos.pop();
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
 				return retorno + "\n" + "if_icmpge " + "Label"
 						+ (temp - 2) + "\n"// if topo igual 0 va para label true
 						// Label false
@@ -297,6 +306,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 						// label Exit
 						+ "Label" + (temp - 1) + ":\n";
 			}else{
+				pilhaTipos.pop();
 				pilhaTipos.pop();
 				pilhaTipos.push("int");
 				return retorno + "\n" + "dcmpg" + "\n" + "ifge " + "Label"
@@ -317,6 +327,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			String retorno = visitChildren(ctx);
 			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
 			if (pilhaTipos.peek().equals("int")) {
+				pilhaTipos.pop();
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
 				return retorno + "\n" + "if_icmpeq " + "Label"
 						+ (temp - 2) + "\n"// if topo igual 0 va para label true
 						// Label false
@@ -326,6 +339,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 						// label Exit
 						+ "Label" + (temp - 1) + ":\n";
 			}else{
+				pilhaTipos.pop();
 				pilhaTipos.pop();
 				pilhaTipos.push("int");
 				return retorno + "\n" + "dcmpg" + "\n" + "ifeq " + "Label"
@@ -346,6 +360,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			String retorno = visitChildren(ctx);
 			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
 			if (pilhaTipos.peek().equals("int")) {
+				pilhaTipos.pop();
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
 				return retorno + "\n" + "if_icmpne " + "Label"
 						+ (temp - 2) + "\n"// if topo igual 0 va para label true
 						// Label false
@@ -355,6 +372,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 						// label Exit
 						+ "Label" + (temp - 1) + ":\n";
 			}else{
+				pilhaTipos.pop();
 				pilhaTipos.pop();
 				pilhaTipos.push("int");
 				return retorno + "\n" + "dcmpg" + "\n" + "ifeq " + "Label"
@@ -375,10 +393,11 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		i = i + 1;
 		int temp = i;
 		String retorno = visit(ctx.expressao());
-		if (pilhaTipos.pop().equals("int")) {
+		if (!pilhaTipos.peek().equals("int")) {
 			System.out.println("Erro: Instrucoes de desvio verificam apenas condicoes booleanas,"
 					+ " e a pilha de tipos nao esta indicando valor booleano.");
 		}
+		pilhaTipos.pop();
 		retorno = "ifeq " + "Label"	+ (temp - 1) + "\n";
 		retorno = retorno + visit(ctx.statement())+ "Label" + (temp - 1) + ":\n";
 		return retorno;
@@ -389,10 +408,11 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		i = i + 2;
 		int temp = i;
 		String retorno = visit(ctx.expressao());
-		if (pilhaTipos.pop().equals("int")) {
+		if (!pilhaTipos.peek().equals("int")) {
 			System.out.println("Erro: Instrucoes de desvio verificam apenas condicoes booleanas,"
 					+ " e a pilha de tipos nao esta indicando valor booleano.");
 		}
+		pilhaTipos.pop();
 		retorno = retorno + "ifeq " + "Label"	+ (temp - 2) + "\n";
 		retorno = retorno + visit(ctx.comand1);
 		retorno = retorno + "goto Label" + (temp - 1) + "\n";
@@ -408,9 +428,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	public String visitDivisao(DivisaoContext ctx) {
 		String retorno = visitChildren(ctx);
 		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
-		if (pilhaTipos.peek().equals("int")) {
+		if (pilhaTipos.pop().equals("int")) {
 			retorno = retorno + "\n" + "idiv";
-		} else if (pilhaTipos.peek().equals("double")) {
+		} else if (pilhaTipos.pop().equals("double")) {
 			retorno = retorno + "\n" + "ddiv";
 		}
 		return retorno;
@@ -421,9 +441,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		String retorno = visitChildren(ctx);
 		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
 		
-		if (pilhaTipos.peek().equals("int")) {
+		if (pilhaTipos.pop().equals("int")) {
 			retorno = retorno + "\n" + "imul";
-		} else if (pilhaTipos.peek().equals("double")) {
+		} else if (pilhaTipos.pop().equals("double")) {
 			retorno = retorno + "\n" + "dmul";
 		}
 		return retorno;
@@ -434,9 +454,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		String retorno = visitChildren(ctx);
 		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
 		
-		if (pilhaTipos.peek().equals("int")) {
+		if (pilhaTipos.pop().equals("int")) {
 			retorno = retorno + "\n" + "irem";
-		} else if (pilhaTipos.peek().equals("double")) {
+		} else if (pilhaTipos.pop().equals("double")) {
 			retorno = retorno + "\n" + "drem";
 		}
 		return retorno;
@@ -447,9 +467,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		String retorno = visitChildren(ctx);
 		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
 		
-		if (pilhaTipos.peek().equals("int")) {
+		if (pilhaTipos.pop().equals("int")) {
 			retorno = retorno + "\n" + "isub";
-		} else if (pilhaTipos.peek().equals("double")) {
+		} else if (pilhaTipos.pop().equals("double")) {
 			retorno = retorno + "\n" + "dsub";
 		}
 		return retorno;
@@ -460,9 +480,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		String retorno = visitChildren(ctx);
 		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
 		
-		if (pilhaTipos.peek().equals("int")) {
+		if (pilhaTipos.pop().equals("int")) {
 			retorno = retorno + "\n" + "iadd";
-		} else if (pilhaTipos.peek().equals("double")) {
+		} else if (pilhaTipos.pop().equals("double")) {
 			retorno = retorno + "\n" + "dadd";
 		}
 		return retorno;
@@ -496,7 +516,8 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	public String verificarOperacao(String token1, String token2, Token operacao) {
 		// verificar se ha mapeamento
 		String direita = pilhaTipos.pop();
-		String esquerda = pilhaTipos.pop();
+		String esquerda = pilhaTipos.peek();
+		pilhaTipos.push(direita);
 		String resultadoOP = mapaOperacoes.get(esquerda + operacao.getText() + direita);
 		String retorno = "";
 		if (resultadoOP == null) {
@@ -504,22 +525,30 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		}
 		// executar conversao caso tipos sejam diferentes
 		if (!esquerda.equals(direita)) {
+			// converter esquerda para o mesmo tipo da direita
 			if (resultadoOP.equals(direita)) {
-				// converter esquerda para o mesmo tipo da direita
-				// primeiro fazer um swap para obter o segundo elemento da pilha (esquerda)
 				
 				//convert int to double
-				if(esquerda.equalsIgnoreCase("int")&&resultadoOP.equals("double"))
+				if(esquerda.equalsIgnoreCase("int")&&resultadoOP.equals("double")){
 					retorno = "\n"+"dup2_x1"+"\n"+"pop2"+"\n"+"i2d";
+					direita = pilhaTipos.pop();
+					pilhaTipos.pop();
+					pilhaTipos.push(resultadoOP);
+					pilhaTipos.push(direita);
+				}
+
+				
+			// converter direita para o mesmo tipo da esquerda
 			} else {
-				// converter direita para o mesmo tipo da esquerda
 				
 				//convert int to double
-				if(direita.equalsIgnoreCase("int")&&resultadoOP.equals("double"))
+				if(direita.equalsIgnoreCase("int")&&resultadoOP.equals("double")){
 					retorno = "\n"+"i2d";
+					pilhaTipos.pop();
+					pilhaTipos.push(resultadoOP);
+				}
 			}
 		}
-		pilhaTipos.push(resultadoOP);
 		return retorno;
 	}
 
