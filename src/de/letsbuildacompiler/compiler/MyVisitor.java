@@ -37,6 +37,7 @@ import de.letsbuildacompiler.parser.GramaticaParser.PrintlnContext;
 import de.letsbuildacompiler.parser.GramaticaParser.SomaContext;
 import de.letsbuildacompiler.parser.GramaticaParser.SubtracaoContext;
 import de.letsbuildacompiler.parser.GramaticaParser.TesteContext;
+import de.letsbuildacompiler.parser.GramaticaParser.WhilestatementContext;
 
 public class MyVisitor extends GramaticaBaseVisitor<String> {
 
@@ -121,11 +122,12 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	public String visitPrintln(PrintlnContext ctx) {
 		String retorno = "	getstatic java/lang/System/out Ljava/io/PrintStream;\n"
 				+ visit(ctx.argument) + "\n";
-		if (pilhaTipos.pop().equals("int")) {
+		String tipo = pilhaTipos.pop(); 
+		if (tipo.equals("int")) {
 			//System.out.println("\n"+pilhaTipos);
 			retorno = retorno
 					+ "	invokevirtual java/io/PrintStream/println(I)V\n";
-		} else if (pilhaTipos.pop().equals("double")) {
+		} else if (tipo.equals("double")) {
 			//System.out.println("\n"+pilhaTipos);
 			retorno = retorno
 					+ "	invokevirtual java/io/PrintStream/println(D)V\n";
@@ -421,6 +423,18 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		retorno = retorno + "Label" + (temp - 1) + ":\n";//exit
 		return retorno;
 	}
+	////////////////////////////////////////while///////////////////////////////////////////
+	
+	@Override
+	public String visitWhilestatement(WhilestatementContext ctx) {
+		i = i + 2;
+		int temp = i;
+		String retorno = "StartWhile"+(i-2)+":\n";
+		retorno = retorno+visit(ctx.expressao());
+		retorno = retorno+visit(ctx.expressao());
+		return retorno;
+	}
+	
 
 	// //////////////////////////////////////term///////////////////////////////////////////
 	
@@ -428,9 +442,10 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	public String visitDivisao(DivisaoContext ctx) {
 		String retorno = visitChildren(ctx);
 		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
-		if (pilhaTipos.pop().equals("int")) {
+		String tipo = pilhaTipos.pop();
+		if (tipo.equals("int")) {
 			retorno = retorno + "\n" + "idiv";
-		} else if (pilhaTipos.pop().equals("double")) {
+		} else if (tipo.equals("double")) {
 			retorno = retorno + "\n" + "ddiv";
 		}
 		return retorno;
@@ -440,10 +455,10 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	public String visitMultiplicacao(MultiplicacaoContext ctx) {
 		String retorno = visitChildren(ctx);
 		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
-		
-		if (pilhaTipos.pop().equals("int")) {
+		String tipo = pilhaTipos.pop();
+		if (tipo.equals("int")) {
 			retorno = retorno + "\n" + "imul";
-		} else if (pilhaTipos.pop().equals("double")) {
+		} else if (tipo.equals("double")) {
 			retorno = retorno + "\n" + "dmul";
 		}
 		return retorno;
@@ -453,10 +468,10 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	public String visitModulo(ModuloContext ctx) {
 		String retorno = visitChildren(ctx);
 		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
-		
-		if (pilhaTipos.pop().equals("int")) {
+		String tipo = pilhaTipos.pop();
+		if (tipo.equals("int")) {
 			retorno = retorno + "\n" + "irem";
-		} else if (pilhaTipos.pop().equals("double")) {
+		} else if (tipo.equals("double")) {
 			retorno = retorno + "\n" + "drem";
 		}
 		return retorno;
@@ -466,9 +481,10 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	public String visitSubtracao(SubtracaoContext ctx) {
 		String retorno = visitChildren(ctx);
 		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
-		if (pilhaTipos.pop().equals("int")) {
+		String tipo = pilhaTipos.pop();
+		if (tipo.equals("int")) {
 			retorno = retorno + "\n" + "isub";
-		} else if (pilhaTipos.pop().equals("double")) {
+		} else if (tipo.equals("double")) {
 			retorno = retorno + "\n" + "dsub";
 		}
 		return retorno;
@@ -478,10 +494,10 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	public String visitSoma(SomaContext ctx) {
 		String retorno = visitChildren(ctx);
 		retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
-		
-		if (pilhaTipos.pop().equals("int")) {
+		String tipo = pilhaTipos.pop();
+		if (tipo.equals("int")) {
 			retorno = retorno + "\n" + "iadd";
-		} else if (pilhaTipos.pop().equals("double")) {
+		} else if (tipo.equals("double")) {
 			retorno = retorno + "\n" + "dadd";
 		}
 		return retorno;

@@ -1,8 +1,5 @@
 grammar Gramatica;
 
-//declaracao programa
-//teste: (println ';'| escopoclasse | expressao | metoddecl)+;
-
 teste: programDecl+;
 
 programDecl: statement #comandoNormal
@@ -12,7 +9,10 @@ programDecl: statement #comandoNormal
 statement: println ';' 
         | escopoclasse 
         | expressao
-        | ifstatement;
+        | ifstatement
+        | whilestatement
+        ;
+        
 println: 'println(' argument=expressao ')';
 
 //programa: classe+;
@@ -31,7 +31,7 @@ escopoclasse: vardecl SEMICOLON
 
 /*Declaracoes*/ 
 vardecl:tipo=tipoDeclarar nomeVariavel=IDENT #DeclaracaoVariaveis;
-tipoDeclarar: INT | DOUBLE | STRING | BOOLEAN;
+tipoDeclarar: INT | DOUBLE ;
 
 /*Declaracao seguida de atribuicao*/
 vardeclatrib:tipo=tipoDeclarar variavel=IDENT operacao=ASSIGN valor=expressao #DeclararEAtribuir;//para o caso de int a = bola[2];
@@ -39,10 +39,9 @@ vardeclatrib:tipo=tipoDeclarar variavel=IDENT operacao=ASSIGN valor=expressao #D
 /*Atribuicao*/
 atrib: variavel=IDENT operacao=ASSIGN expr=expressao #Atribuicao;
 
-lvalue: identificador=IDENT #CarregarValor;//ident[2*i];
+lvalue: identificador=IDENT #CarregarValor;
 
 /*Declaracao Metodos*/
-//metoddecl:type=(INT | DOUBLE | STRING | BOOLEAN | VOID) nomeMetodo=IDENT ' (' ')' '{''return ' expressao ';''}';
 metoddecl:type='int' nomeMetodo=IDENT ' (' parametros=paramlist ')' '{' com=comandos 'return ' expressao ';''}';
 
 paramlist: decl+=vardecl (',' decl+=vardecl)* | ;
@@ -52,8 +51,6 @@ metodcall: nomeMetodo=IDENT '('args=listaargumento')';
 comandos: (comando1)* | ;
 comando1: ifstatement
     | forstatement    
-    | BREAK SEMICOLON
-    | SEMICOLON
     | vardecl SEMICOLON
     | atrib SEMICOLON
     | vardeclatrib SEMICOLON
@@ -61,8 +58,8 @@ comando1: ifstatement
 
 escopometodo:LPAREN parametro? RPAREN '{'comando'}';
 
-parametro:((INT | DOUBLE | STRING | BOOLEAN ) IDENT//unico parametro
-                      (COMMA (INT | DOUBLE | STRING | BOOLEAN) IDENT)*);//varios parametros
+parametro:((INT | DOUBLE ) IDENT//unico parametro
+                      (COMMA (INT | DOUBLE ) IDENT)*);//varios parametros
 
 //deve existir uma producao vazia para o caso em que não existe parametro.
 listaargumento:exp+=expressao ( COMMA exp+=expressao )* | ;
@@ -71,8 +68,6 @@ comando:retorno SEMICOLON |
      ifstatement
     | forstatement
     | LBRACE listacomandos RBRACE
-    | BREAK SEMICOLON
-    | SEMICOLON
     | vardecl SEMICOLON
     | atrib SEMICOLON
     | vardeclatrib SEMICOLON
@@ -100,7 +95,6 @@ term: esquerda=term operacao=SLASH direita=term #Divisao
 
 factor: numero=INT_CONSTANT #NumeroInteiro
       | numero=DOUBLE_CONSTANT #NumeroReal
-      //| STRING_CONSTANT #String
       | lvalue #ChamarLvalue
       | LPAREN expressao RPAREN #Parentesis
       ;
@@ -113,30 +107,25 @@ ifstatement: IF LPAREN expressao RPAREN LBRACE statement RBRACE #IfIncompleto
 
 forstatement:FOR LPAREN INT atrib SEMICOLON expressao SEMICOLON atrib RPAREN comando;
 
-whilestatement: WHILE LPAREN expressao RPAREN comando;
+whilestatement: WHILE LPAREN expressao RPAREN LBRACE statement RBRACE;
 
 listacomandos:comando listacomandos?;
 
 /* Constantes */
 INT_CONSTANT: [0-9]+;
-//<STRING_CONSTANT: "\""( ~["\"","\n","\r"])* "\"" >
 DOUBLE_CONSTANT: [0-9]+ DOT [0-9]+;
 
 /* Palavras reservadas */
 CLASS: 'class';
 VOID: 'void';
-TRUE: 'true';
-FALSE: 'false';
 BREAK: 'break';
 IF: 'if';
 ELSE: 'else';
 FOR: 'for';
 RETURN: 'return';
-STRING: 'string';
 INT: 'int';
 DOUBLE: 'DOUBLE';
 WHILE: 'while';
-BOOLEAN: 'boolean';
 
 /* Identificadores */
 IDENT: [a-zA-Z][a-zA-Z0-9]*;
