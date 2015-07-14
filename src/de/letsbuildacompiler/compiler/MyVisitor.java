@@ -401,7 +401,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		}
 		pilhaTipos.pop();
 		retorno = "ifeq " + "Label"	+ (temp - 1) + "\n";
-		retorno = retorno + visit(ctx.statement())+ "Label" + (temp - 1) + ":\n";
+		retorno = retorno + visit(ctx.comand)+ "Label" + (temp - 1) + ":\n";
 		return retorno;
 	}
 	
@@ -430,8 +430,11 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		i = i + 2;
 		int temp = i;
 		String retorno = "StartWhile"+(i-2)+":\n";
-		retorno = retorno+visit(ctx.expressao());
-		retorno = retorno+visit(ctx.expressao());
+		retorno = retorno + visit(ctx.expressao()) + "\n";
+		retorno = retorno + "ifeq " + "ExitWhile"	+ (temp - 1) + "\n";
+		retorno = retorno + visit(ctx.comand) + "\n";//fazer for
+		retorno = retorno + "goto StartWhile" + (temp - 2) + "\n";
+		retorno = retorno + "ExitWhile" + (temp - 1) + ":\n";//exit
 		return retorno;
 	}
 	

@@ -162,7 +162,7 @@ public class CompilerTest {
 				{"println(5!=4);", "1"+System.lineSeparator()},
 				*/
 				//WHILE LPAREN expressao RPAREN comando;
-				{"while(1){println(322)};}", "322"+System.lineSeparator()},
+				{"int a = 0;while(a!=3){a = a + 1;println(a);}println(322);", "322"+System.lineSeparator()},
 				
 				//{"println(5.4);", "5.4"+System.lineSeparator()},//"erro" de representacao de double
 				/*
