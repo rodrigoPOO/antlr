@@ -160,10 +160,12 @@ public class CompilerTest {
 				{"println(5==4);", "0"+System.lineSeparator()},
 				{"println(5!=5);", "0"+System.lineSeparator()},
 				{"println(5!=4);", "1"+System.lineSeparator()},
-				
+			
 				//WHILE LPAREN expressao RPAREN comando;
 				{"int a = 0;while(a!=3){a = a + 1;println(a);}println(322);", "1\n2\n3\n322"+System.lineSeparator()},
-				{"println(\"Hello Compiler!\");", "Hello Compiler!"+System.lineSeparator()},
+				{"String a = \"teste\";String s = \"Hello Compiler!\";println(a==a);", "1"+System.lineSeparator()},
+				{"println(\"abbbb\"<\"abb\");", "0"+System.lineSeparator()},
+			
 				
 				//teste de comparacao de strings <
 				{"println(\"ab\"<\"abb\");", "1"+System.lineSeparator()},

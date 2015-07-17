@@ -45,12 +45,13 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 
 	private Map<String, Integer> variables = new HashMap<>();
 	private Map<String, String> tiposDeclarados = new HashMap<>();
+	private Map<String, String> stringDeclaradas = new HashMap<>(); //associa String com seu valor.
 	private Stack<String> pilhaTipos = new Stack<String>();
 	private Stack<Integer> tamanhoStrings = new Stack<Integer>();
 	private final MetodosDeclarados metodosDeclarados;
 	private static Map<String, String> mapaOperacoes;
 	private int i = 0;
-
+	private int controlString = 0;
 	public MyVisitor(MetodosDeclarados metodosDeclarados) {
 		if (metodosDeclarados == null) {
 			throw new NullPointerException("eRRRRRo");
@@ -148,8 +149,14 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	}
 	@Override
 	public String visitPrint(PrintContext ctx) {
+		//obter o valor da variavel declarada como string
+		String nomeVar = ctx.argument.getText();
+		String carregarLavor = "";
+		if(variables.containsKey(nomeVar) && stringDeclaradas.containsKey(nomeVar)){
+			carregarLavor = "\n ldc "+stringDeclaradas.get(nomeVar);
+		}
 		String txt = "	getstatic java/lang/System/out Ljava/io/PrintStream;\n"
-				+ visit(ctx.argument) + "\n"+ "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n";
+				+carregarLavor + "\n"+ "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n";
 		return txt;
 	}
 		// /////////////////////////////////Vardecl///////////////////////////////////////
@@ -161,6 +168,11 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		}
 		variables.put(ctx.nomeVariavel.getText(), variables.size());
 		tiposDeclarados.put(ctx.nomeVariavel.getText(), ctx.tipo.getText());
+		System.out.println(ctx.nomeVariavel.getText());
+		if(ctx.tipo.getText().equals("String")){
+			stringDeclaradas.put(ctx.nomeVariavel.getText(), "");
+		}
+		
 		return "";
 	}
 
@@ -187,7 +199,14 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		}
 		variables.put(ctx.variavel.getText(), variables.size());
 		tiposDeclarados.put(ctx.variavel.getText(), ctx.tipo.getText());
-		retorno = retorno + "\n" + "istore " + requireVariableIndex(ctx.variavel);
+		if(ctx.tipo.getText().equals("String")){			
+			stringDeclaradas.put(ctx.variavel.getText(), ctx.valor.getText());
+			retorno = retorno+"\n" +"istore "+requireVariableIndex(ctx.variavel);
+			
+		}else{
+			retorno = retorno + "\n" + "istore " + requireVariableIndex(ctx.variavel);
+		}
+		
 		return retorno;
 	}
 
@@ -196,8 +215,18 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	@Override
 	public String visitAtribuicao(AtribuicaoContext ctx) {
 		String retorno = visit(ctx.expr) + "\n" + "istore " + requireVariableIndex(ctx.variavel);
+		if(stringDeclaradas.containsKey(ctx.variavel.getText())){
+			stringDeclaradas.remove(ctx.variavel.getText());
+			stringDeclaradas.put(ctx.variavel.getText(), ctx.expr.getText());
+			//ldc do tamanho da string para futura comparacoes
+			
+			retorno = "ldc "+ ctx.expr.getText().length()+"\n" +
+			"istore "+requireVariableIndex(ctx.variavel);
+			
+		}
 		if(pilhaTipos.size() > 0)
 			pilhaTipos.pop();//talvez isso gere bugs no futuro -> gerou!!!
+		
 		return retorno;
 	}
 
@@ -206,7 +235,12 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	@Override
 	public String visitCarregarValor(CarregarValorContext ctx) {
 		pilhaTipos.push(tiposDeclarados.get(ctx.identificador.getText()));
-		return "iload " + requireVariableIndex(ctx.identificador);
+		String carregaValor = "iload " + requireVariableIndex(ctx.identificador);
+		//nao deve fazer nenhum load, pois o controle de string está feito fora da pilha!
+		if(stringDeclaradas.containsKey(ctx.identificador.getText())){
+			//carregaValor = "";
+		}
+		return carregaValor;
 	}
 
 	// //////////////////////////////////////expressao///////////////////////////////////////
@@ -221,12 +255,15 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 				pilhaTipos.pop();
 				pilhaTipos.pop();
 				pilhaTipos.push("int");
-				int tamanhoS1 = tamanhoStrings.pop();
+				//obter o tamanho a string da dir e da esquerda.
 				int tamanhoS2 = tamanhoStrings.pop();
-				retorno += "\n pop \n";
-				retorno += "\n pop \n";				
-				retorno +=" ldc "+ tamanhoS2 +"\n";
-				retorno +=" ldc "+ tamanhoS1 +"\n";
+				int tamanhoS1 = tamanhoStrings.pop();
+				
+				//retorno += "\n pop \n";
+				//retorno += "\n pop \n";				
+				
+				//retorno +=" ldc "+ tamanhoS1 +"\n";
+				//retorno +=" ldc "+ tamanhoS2 +"\n";
 				
 				
 				return retorno + "\n" + "if_icmplt " + "Label"
@@ -277,12 +314,10 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 				pilhaTipos.pop();
 				pilhaTipos.pop();
 				pilhaTipos.push("int");
-				int tamanhoS1 = tamanhoStrings.pop();
 				int tamanhoS2 = tamanhoStrings.pop();
-				retorno += "\n pop \n";
-				retorno += "\n pop \n";				
-				retorno +=" ldc "+ tamanhoS2 +"\n";
-				retorno +=" ldc "+ tamanhoS1 +"\n";
+				int tamanhoS1 = tamanhoStrings.pop();
+				//retorno += "\n pop \n";
+				//retorno += "\n pop \n";				
 				return retorno + "\n" + "if_icmpgt " + "Label"
 				+ (temp - 2) + "\n"// if topo igual 0 va para label true
 				// Label false
@@ -401,10 +436,6 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 				pilhaTipos.push("int");
 				int tamanhoS1 = tamanhoStrings.pop();
 				int tamanhoS2 = tamanhoStrings.pop();
-				retorno += "\n pop \n";
-				retorno += "\n pop \n";				
-				retorno +=" ldc "+ tamanhoS2 +"\n";
-				retorno +=" ldc "+ tamanhoS1 +"\n";
 				return retorno + "\n" + "if_icmpeq " + "Label"
 				+ (temp - 2) + "\n"// if topo igual 0 va para label true
 				// Label false
@@ -620,9 +651,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	public String visitString(StringContext ctx) {
 		pilhaTipos.push("String");
 		int tamanhoString = ctx.txt.getText().length();
-		tamanhoStrings.push(tamanhoString);
-		System.out.println(tamanhoString);
-		return "ldc "+ctx.txt.getText();
+		tamanhoStrings.push(tamanhoString);		
+		return "ldc "+ctx.txt.getText().length();
+		
 	}
 
 
