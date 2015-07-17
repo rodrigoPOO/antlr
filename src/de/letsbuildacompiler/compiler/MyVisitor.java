@@ -401,7 +401,9 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		}
 		pilhaTipos.pop();
 		retorno = "ifeq " + "Label"	+ (temp - 1) + "\n";
-		retorno = retorno + visit(ctx.comand)+ "Label" + (temp - 1) + ":\n";
+		for(int j=0;j<ctx.statement().size();j++)
+			retorno = retorno + visit(ctx.statement(j)) + "\n";
+		retorno = retorno + "Label" + (temp - 1) + ":\n";
 		return retorno;
 	}
 	
@@ -416,10 +418,12 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		}
 		pilhaTipos.pop();
 		retorno = retorno + "ifeq " + "Label"	+ (temp - 2) + "\n";
-		retorno = retorno + visit(ctx.comand1);
+		for(int j=0;j<ctx.statement().size();j++)
+			retorno = retorno + visit(ctx.statement(j)) + "\n";
 		retorno = retorno + "goto Label" + (temp - 1) + "\n";
 		retorno = retorno + "Label" + (temp - 2) + ":\n";//else
-		retorno = retorno + visit(ctx.comand2);
+		for(int j=0;j<ctx.gambi().size();j++)
+			retorno = retorno + visit(ctx.gambi(j)) + "\n";
 		retorno = retorno + "Label" + (temp - 1) + ":\n";//exit
 		return retorno;
 	}
@@ -431,8 +435,14 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		int temp = i;
 		String retorno = "StartWhile"+(i-2)+":\n";
 		retorno = retorno + visit(ctx.expressao()) + "\n";
+		if (!pilhaTipos.peek().equals("int")) {
+			System.out.println("Erro: Instrucoes de desvio verificam apenas condicoes booleanas,"
+					+ " e a pilha de tipos nao esta indicando valor booleano.");
+		}
+		pilhaTipos.pop();
 		retorno = retorno + "ifeq " + "ExitWhile"	+ (temp - 1) + "\n";
-		retorno = retorno + visit(ctx.comand) + "\n";//fazer for
+		for(int j=0;j<ctx.statement().size();j++)
+			retorno = retorno + visit(ctx.statement(j)) + "\n";
 		retorno = retorno + "goto StartWhile" + (temp - 2) + "\n";
 		retorno = retorno + "ExitWhile" + (temp - 1) + ":\n";//exit
 		return retorno;

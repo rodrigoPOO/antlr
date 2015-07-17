@@ -13,6 +13,15 @@ statement: println ';'
         | whilestatement
         ;
         
+gambi: println ';' 
+        | escopoclasse 
+        | expressao
+        | ifstatement
+        | whilestatement
+        ;
+        
+        
+        
 println: 'println(' argument=expressao ')';
 
 //programa: classe+;
@@ -101,8 +110,8 @@ factor: numero=INT_CONSTANT #NumeroInteiro
 
 retorno:RETURN expressao;
 
-ifstatement: IF LPAREN expressao RPAREN LBRACE comand=statement+ RBRACE #IfIncompleto
-            | IF LPAREN expressao RPAREN LBRACE comand1=statement+ RBRACE ELSE LBRACE comand2=statement+ RBRACE #IfCompleto
+ifstatement: IF LPAREN expressao RPAREN LBRACE statement+ RBRACE #IfIncompleto
+            | IF LPAREN expressao RPAREN LBRACE statement+ RBRACE ELSE LBRACE gambi+ RBRACE #IfCompleto
             ;
 
 forstatement:FOR LPAREN INT atrib SEMICOLON expressao SEMICOLON atrib RPAREN comando;
