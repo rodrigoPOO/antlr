@@ -7,6 +7,7 @@ programDecl: statement #comandoNormal
             ;
 
 statement: println ';' 
+		| print ';'
         | escopoclasse 
         | expressao
         | ifstatement
@@ -14,15 +15,18 @@ statement: println ';'
         ;
         
 gambi: println ';' 
+		| print ';'
         | escopoclasse 
         | expressao
         | ifstatement
         | whilestatement
         ;
         
-        
+    
         
 println: 'println(' argument=expressao ')';
+
+print: 'print(' argument=expressao ')';
 
 //programa: classe+;
 
@@ -40,7 +44,7 @@ escopoclasse: vardecl SEMICOLON
 
 /*Declaracoes*/ 
 vardecl:tipo=tipoDeclarar nomeVariavel=IDENT #DeclaracaoVariaveis;
-tipoDeclarar: INT | DOUBLE ;
+tipoDeclarar: INT | DOUBLE | TEXTO;
 
 /*Declaracao seguida de atribuicao*/
 vardeclatrib:tipo=tipoDeclarar variavel=IDENT operacao=ASSIGN valor=expressao #DeclararEAtribuir;//para o caso de int a = bola[2];
@@ -104,6 +108,7 @@ term: esquerda=term operacao=SLASH direita=term #Divisao
 
 factor: numero=INT_CONSTANT #NumeroInteiro
       | numero=DOUBLE_CONSTANT #NumeroReal
+      | txt=STRING #string
       | lvalue #ChamarLvalue
       | LPAREN expressao RPAREN #Parentesis
       ;
@@ -134,10 +139,14 @@ FOR: 'for';
 RETURN: 'return';
 INT: 'int';
 DOUBLE: 'DOUBLE';
+TEXTO: 'String';
 WHILE: 'while';
 
 /* Identificadores */
 IDENT: [a-zA-Z][a-zA-Z0-9]*;
+
+/* String simples*/
+STRING: '"' .*? '"';
 
 /* Simbolos especiais */
 LPAREN: '(';

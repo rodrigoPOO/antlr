@@ -100,7 +100,7 @@ public class CompilerTest {
 	@DataProvider
 	public Object[][] provide_code_exceptedText(){
 		return new Object[][]{
-				
+			
 				{"println(1+2);", "3"+System.lineSeparator()},
 				{"println(1);", "1"+System.lineSeparator()},
 				{"println(1+2+42);", "45"+System.lineSeparator()},
@@ -163,7 +163,16 @@ public class CompilerTest {
 				
 				//WHILE LPAREN expressao RPAREN comando;
 				{"int a = 0;while(a!=3){a = a + 1;println(a);}println(322);", "1\n2\n3\n322"+System.lineSeparator()},
+				{"println(\"Hello Compiler!\");", "Hello Compiler!"+System.lineSeparator()},
 				
+				//teste de comparacao de strings <
+				{"println(\"ab\"<\"abb\");", "1"+System.lineSeparator()},
+				{"println(\"abbbb\"<\"abb\");", "0"+System.lineSeparator()},
+				{"println(\"ola\">\"a\");", "1"+System.lineSeparator()},
+				{"println(\"ola\">\"aaaaaa\");", "0"+System.lineSeparator()},
+				
+				{"println(\"ola\"==\"aaaaaa\");", "0"+System.lineSeparator()},
+				{"println(\"ola\"==\"ola\");", "1"+System.lineSeparator()},
 				//{"println(5.4);", "5.4"+System.lineSeparator()},//"erro" de representacao de double
 				
 				{"if(1==1){println(4<3.1);}else{println(322);}", "0"+System.lineSeparator()},

@@ -53,6 +53,16 @@ public interface GramaticaListener extends ParseTreeListener {
 	 */
 	void exitStatement(GramaticaParser.StatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link GramaticaParser#gambi}.
+	 * @param ctx the parse tree
+	 */
+	void enterGambi(GramaticaParser.GambiContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GramaticaParser#gambi}.
+	 * @param ctx the parse tree
+	 */
+	void exitGambi(GramaticaParser.GambiContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link GramaticaParser#println}.
 	 * @param ctx the parse tree
 	 */
@@ -62,6 +72,16 @@ public interface GramaticaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPrintln(GramaticaParser.PrintlnContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link GramaticaParser#print}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrint(GramaticaParser.PrintContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GramaticaParser#print}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrint(GramaticaParser.PrintContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link GramaticaParser#classe}.
 	 * @param ctx the parse tree
@@ -150,16 +170,6 @@ public interface GramaticaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCarregarValor(GramaticaParser.CarregarValorContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link GramaticaParser#inicializarArranjo}.
-	 * @param ctx the parse tree
-	 */
-	void enterInicializarArranjo(GramaticaParser.InicializarArranjoContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link GramaticaParser#inicializarArranjo}.
-	 * @param ctx the parse tree
-	 */
-	void exitInicializarArranjo(GramaticaParser.InicializarArranjoContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link GramaticaParser#metoddecl}.
 	 * @param ctx the parse tree
@@ -443,17 +453,17 @@ public interface GramaticaListener extends ParseTreeListener {
 	 */
 	void exitNumeroReal(GramaticaParser.NumeroRealContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code Null}
+	 * Enter a parse tree produced by the {@code string}
 	 * labeled alternative in {@link GramaticaParser#factor}.
 	 * @param ctx the parse tree
 	 */
-	void enterNull(GramaticaParser.NullContext ctx);
+	void enterString(GramaticaParser.StringContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code Null}
+	 * Exit a parse tree produced by the {@code string}
 	 * labeled alternative in {@link GramaticaParser#factor}.
 	 * @param ctx the parse tree
 	 */
-	void exitNull(GramaticaParser.NullContext ctx);
+	void exitString(GramaticaParser.StringContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ChamarLvalue}
 	 * labeled alternative in {@link GramaticaParser#factor}.
@@ -489,15 +499,29 @@ public interface GramaticaListener extends ParseTreeListener {
 	 */
 	void exitRetorno(GramaticaParser.RetornoContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link GramaticaParser#ifstatement}.
+	 * Enter a parse tree produced by the {@code IfIncompleto}
+	 * labeled alternative in {@link GramaticaParser#ifstatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterIfstatement(GramaticaParser.IfstatementContext ctx);
+	void enterIfIncompleto(GramaticaParser.IfIncompletoContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link GramaticaParser#ifstatement}.
+	 * Exit a parse tree produced by the {@code IfIncompleto}
+	 * labeled alternative in {@link GramaticaParser#ifstatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitIfstatement(GramaticaParser.IfstatementContext ctx);
+	void exitIfIncompleto(GramaticaParser.IfIncompletoContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code IfCompleto}
+	 * labeled alternative in {@link GramaticaParser#ifstatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterIfCompleto(GramaticaParser.IfCompletoContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code IfCompleto}
+	 * labeled alternative in {@link GramaticaParser#ifstatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitIfCompleto(GramaticaParser.IfCompletoContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link GramaticaParser#forstatement}.
 	 * @param ctx the parse tree

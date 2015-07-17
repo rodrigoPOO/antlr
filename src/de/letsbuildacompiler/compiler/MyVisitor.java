@@ -33,8 +33,10 @@ import de.letsbuildacompiler.parser.GramaticaParser.ModuloContext;
 import de.letsbuildacompiler.parser.GramaticaParser.MultiplicacaoContext;
 import de.letsbuildacompiler.parser.GramaticaParser.NumeroInteiroContext;
 import de.letsbuildacompiler.parser.GramaticaParser.NumeroRealContext;
+import de.letsbuildacompiler.parser.GramaticaParser.PrintContext;
 import de.letsbuildacompiler.parser.GramaticaParser.PrintlnContext;
 import de.letsbuildacompiler.parser.GramaticaParser.SomaContext;
+import de.letsbuildacompiler.parser.GramaticaParser.StringContext;
 import de.letsbuildacompiler.parser.GramaticaParser.SubtracaoContext;
 import de.letsbuildacompiler.parser.GramaticaParser.TesteContext;
 import de.letsbuildacompiler.parser.GramaticaParser.WhilestatementContext;
@@ -44,6 +46,7 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	private Map<String, Integer> variables = new HashMap<>();
 	private Map<String, String> tiposDeclarados = new HashMap<>();
 	private Stack<String> pilhaTipos = new Stack<String>();
+	private Stack<Integer> tamanhoStrings = new Stack<Integer>();
 	private final MetodosDeclarados metodosDeclarados;
 	private static Map<String, String> mapaOperacoes;
 	private int i = 0;
@@ -113,7 +116,10 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		mapaOperacoes.put("doublecomparedouble", "double");
 		mapaOperacoes.put("intcomparedouble", "double");
 		mapaOperacoes.put("doublecompareint", "double");
-
+		mapaOperacoes.put("String<String", "int");
+		mapaOperacoes.put("String>String", "int");
+		mapaOperacoes.put("String==String", "int");
+		
 		mapaOperacoes.put("string-string", "string");
 		mapaOperacoes.put("string+string", "string");
 	}
@@ -123,6 +129,11 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		String retorno = "	getstatic java/lang/System/out Ljava/io/PrintStream;\n"
 				+ visit(ctx.argument) + "\n";
 		String tipo = pilhaTipos.pop(); 
+		if(tipo.equals("String")){
+			retorno = "	getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+					+ visit(ctx.argument) + "\n"+ "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n";
+			
+		}
 		if (tipo.equals("int")) {
 			//System.out.println("\n"+pilhaTipos);
 			retorno = retorno
@@ -135,8 +146,13 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		System.out.println("\n"+pilhaTipos);
 		return retorno;
 	}
-
-	// /////////////////////////////////Vardecl///////////////////////////////////////
+	@Override
+	public String visitPrint(PrintContext ctx) {
+		String txt = "	getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+				+ visit(ctx.argument) + "\n"+ "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n";
+		return txt;
+	}
+		// /////////////////////////////////Vardecl///////////////////////////////////////
 	/* Tratado declaracao de variaveis ja existentes */
 	@Override
 	public String visitDeclaracaoVariaveis(DeclaracaoVariaveisContext ctx) {
@@ -160,7 +176,11 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			throw new VariableAlreadyDefinedException(ctx.variavel);
 		}
 		retorno = visit(ctx.valor);
-		String tipoEncontrado = pilhaTipos.pop();
+		String tipoEncontrado = "";
+		if(pilhaTipos.size() > 0){
+			 tipoEncontrado = pilhaTipos.pop();
+		}
+			
 		if (!ctx.tipo.getText().equals(tipoEncontrado)) {
 			throw new ExcecaoTipoRegra(ctx.variavel.getText(), ctx.operacao,
 					ctx.tipo.getText(), tipoEncontrado);
@@ -176,7 +196,8 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 	@Override
 	public String visitAtribuicao(AtribuicaoContext ctx) {
 		String retorno = visit(ctx.expr) + "\n" + "istore " + requireVariableIndex(ctx.variavel);
-		pilhaTipos.pop();//talves isso gere bugs no futuro
+		if(pilhaTipos.size() > 0)
+			pilhaTipos.pop();//talvez isso gere bugs no futuro -> gerou!!!
 		return retorno;
 	}
 
@@ -196,6 +217,29 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			int temp = i;
 			String retorno = visitChildren(ctx);
 			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+			if(pilhaTipos.peek().equals("String")){
+				pilhaTipos.pop();
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
+				int tamanhoS1 = tamanhoStrings.pop();
+				int tamanhoS2 = tamanhoStrings.pop();
+				retorno += "\n pop \n";
+				retorno += "\n pop \n";				
+				retorno +=" ldc "+ tamanhoS2 +"\n";
+				retorno +=" ldc "+ tamanhoS1 +"\n";
+				
+				
+				return retorno + "\n" + "if_icmplt " + "Label"
+				+ (temp - 2) + "\n"// if topo igual 0 va para label true
+				// Label false
+				+ "ldc 0" + "\n" + "goto Label" + (temp - 1) + "\n"
+				// Label true
+				+ "Label" + (temp - 2) + ":\n" + "ldc 1" + "\n"
+				// label Exit
+				+ "Label" + (temp - 1) + ":\n";
+				
+				
+			}
 			if (pilhaTipos.peek().equals("int")) {
 				pilhaTipos.pop();
 				pilhaTipos.pop();
@@ -229,6 +273,29 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			int temp = i;
 			String retorno = visitChildren(ctx);
 			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+			if(pilhaTipos.peek().equals("String")){
+				pilhaTipos.pop();
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
+				int tamanhoS1 = tamanhoStrings.pop();
+				int tamanhoS2 = tamanhoStrings.pop();
+				retorno += "\n pop \n";
+				retorno += "\n pop \n";				
+				retorno +=" ldc "+ tamanhoS2 +"\n";
+				retorno +=" ldc "+ tamanhoS1 +"\n";
+				return retorno + "\n" + "if_icmpgt " + "Label"
+				+ (temp - 2) + "\n"// if topo igual 0 va para label true
+				// Label false
+				+ "ldc 0" + "\n" + "goto Label" + (temp - 1) + "\n"
+				// Label true
+				+ "Label" + (temp - 2) + ":\n" + "ldc 1" + "\n"
+				// label Exit
+				+ "Label" + (temp - 1) + ":\n";
+				
+				
+				
+			}
+			
 			if (pilhaTipos.peek().equals("int")) {
 				pilhaTipos.pop();
 				pilhaTipos.pop();
@@ -328,6 +395,27 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 			int temp = i;
 			String retorno = visitChildren(ctx);
 			retorno = retorno + verificarOperacao(ctx.esquerda.getText(), ctx.direita.getText(), ctx.operacao);
+			if(pilhaTipos.peek().equals("String")){
+				pilhaTipos.pop();
+				pilhaTipos.pop();
+				pilhaTipos.push("int");
+				int tamanhoS1 = tamanhoStrings.pop();
+				int tamanhoS2 = tamanhoStrings.pop();
+				retorno += "\n pop \n";
+				retorno += "\n pop \n";				
+				retorno +=" ldc "+ tamanhoS2 +"\n";
+				retorno +=" ldc "+ tamanhoS1 +"\n";
+				return retorno + "\n" + "if_icmpeq " + "Label"
+				+ (temp - 2) + "\n"// if topo igual 0 va para label true
+				// Label false
+				+ "ldc 0" + "\n" + "goto Label" + (temp - 1) + "\n"
+				// Label true
+				+ "Label" + (temp - 2) + ":\n" + "ldc 1" + "\n"
+				// label Exit
+				+ "Label" + (temp - 1) + ":\n";
+				
+				
+			}
 			if (pilhaTipos.peek().equals("int")) {
 				pilhaTipos.pop();
 				pilhaTipos.pop();
@@ -528,6 +616,15 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		pilhaTipos.push("double");
 		return "ldc2_w " + ctx.numero.getText();
 	}
+	@Override
+	public String visitString(StringContext ctx) {
+		pilhaTipos.push("String");
+		int tamanhoString = ctx.txt.getText().length();
+		tamanhoStrings.push(tamanhoString);
+		System.out.println(tamanhoString);
+		return "ldc "+ctx.txt.getText();
+	}
+
 
 	// ///////////////////////////////////////////////////////////////////////////////////////
 

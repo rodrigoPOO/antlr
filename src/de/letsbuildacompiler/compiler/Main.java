@@ -1,6 +1,8 @@
 package de.letsbuildacompiler.compiler;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Set;
 
 import org.antlr.v4.runtime.ANTLRFileStream;
@@ -8,6 +10,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.stringtemplate.v4.compiler.Bytecode.Instruction;
+
 
 
 
@@ -20,8 +23,14 @@ import de.letsbuildacompiler.parser.GramaticaParser;
 public class Main {
 
 	public static void main(String[] args) throws IOException {
-		ANTLRInputStream input = new ANTLRFileStream("Texto.txt");
-		System.out.println(compile(input));
+		ANTLRInputStream input = new ANTLRFileStream("input.azjt");
+		String result = compile(input);
+		System.out.println(result);
+		char[] r2c = result.toCharArray();
+		try(OutputStreamWriter outWriter = new OutputStreamWriter(new FileOutputStream("result.j"),"utf-8")){
+			outWriter.write(r2c);
+			
+		}
 	}
 	
 	public static String compile(ANTLRInputStream input){

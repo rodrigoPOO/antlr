@@ -38,11 +38,23 @@ public interface GramaticaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStatement(GramaticaParser.StatementContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link GramaticaParser#gambi}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGambi(GramaticaParser.GambiContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link GramaticaParser#println}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitPrintln(GramaticaParser.PrintlnContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GramaticaParser#print}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrint(GramaticaParser.PrintContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link GramaticaParser#classe}.
 	 * @param ctx the parse tree
@@ -95,12 +107,6 @@ public interface GramaticaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCarregarValor(GramaticaParser.CarregarValorContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link GramaticaParser#inicializarArranjo}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInicializarArranjo(GramaticaParser.InicializarArranjoContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link GramaticaParser#metoddecl}.
 	 * @param ctx the parse tree
@@ -268,12 +274,12 @@ public interface GramaticaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitNumeroReal(GramaticaParser.NumeroRealContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code Null}
+	 * Visit a parse tree produced by the {@code string}
 	 * labeled alternative in {@link GramaticaParser#factor}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitNull(GramaticaParser.NullContext ctx);
+	T visitString(GramaticaParser.StringContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code ChamarLvalue}
 	 * labeled alternative in {@link GramaticaParser#factor}.
@@ -295,11 +301,19 @@ public interface GramaticaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitRetorno(GramaticaParser.RetornoContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link GramaticaParser#ifstatement}.
+	 * Visit a parse tree produced by the {@code IfIncompleto}
+	 * labeled alternative in {@link GramaticaParser#ifstatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitIfstatement(GramaticaParser.IfstatementContext ctx);
+	T visitIfIncompleto(GramaticaParser.IfIncompletoContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code IfCompleto}
+	 * labeled alternative in {@link GramaticaParser#ifstatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIfCompleto(GramaticaParser.IfCompletoContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link GramaticaParser#forstatement}.
 	 * @param ctx the parse tree

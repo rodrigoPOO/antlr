@@ -65,6 +65,18 @@ public class GramaticaBaseListener implements GramaticaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterGambi(GramaticaParser.GambiContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitGambi(GramaticaParser.GambiContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPrintln(GramaticaParser.PrintlnContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -72,6 +84,18 @@ public class GramaticaBaseListener implements GramaticaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPrintln(GramaticaParser.PrintlnContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPrint(GramaticaParser.PrintContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPrint(GramaticaParser.PrintContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -168,18 +192,6 @@ public class GramaticaBaseListener implements GramaticaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCarregarValor(GramaticaParser.CarregarValorContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterInicializarArranjo(GramaticaParser.InicializarArranjoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitInicializarArranjo(GramaticaParser.InicializarArranjoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -485,13 +497,13 @@ public class GramaticaBaseListener implements GramaticaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNull(GramaticaParser.NullContext ctx) { }
+	@Override public void enterString(GramaticaParser.StringContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNull(GramaticaParser.NullContext ctx) { }
+	@Override public void exitString(GramaticaParser.StringContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -533,13 +545,25 @@ public class GramaticaBaseListener implements GramaticaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIfstatement(GramaticaParser.IfstatementContext ctx) { }
+	@Override public void enterIfIncompleto(GramaticaParser.IfIncompletoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIfstatement(GramaticaParser.IfstatementContext ctx) { }
+	@Override public void exitIfIncompleto(GramaticaParser.IfIncompletoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterIfCompleto(GramaticaParser.IfCompletoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIfCompleto(GramaticaParser.IfCompletoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
