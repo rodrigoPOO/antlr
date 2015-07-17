@@ -154,6 +154,8 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		String carregarLavor = "";
 		if(variables.containsKey(nomeVar) && stringDeclaradas.containsKey(nomeVar)){
 			carregarLavor = "\n ldc "+stringDeclaradas.get(nomeVar);
+		}else{
+			carregarLavor = "\n ldc "+ctx.argument.getText();
 		}
 		String txt = "	getstatic java/lang/System/out Ljava/io/PrintStream;\n"
 				+carregarLavor + "\n"+ "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n";
@@ -199,8 +201,13 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		}
 		variables.put(ctx.variavel.getText(), variables.size());
 		tiposDeclarados.put(ctx.variavel.getText(), ctx.tipo.getText());
-		if(ctx.tipo.getText().equals("String")){			
-			stringDeclaradas.put(ctx.variavel.getText(), ctx.valor.getText());
+		if(ctx.tipo.getText().equals("String")){
+			if(stringDeclaradas.containsKey(ctx.valor.getText())){
+				stringDeclaradas.put(ctx.variavel.getText(), stringDeclaradas.get(ctx.valor.getText()));
+			}else {
+				stringDeclaradas.put(ctx.variavel.getText(), ctx.valor.getText());
+			}
+				
 			retorno = retorno+"\n" +"istore "+requireVariableIndex(ctx.variavel);
 			
 		}else{
@@ -217,7 +224,15 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 		String retorno = visit(ctx.expr) + "\n" + "istore " + requireVariableIndex(ctx.variavel);
 		if(stringDeclaradas.containsKey(ctx.variavel.getText())){
 			stringDeclaradas.remove(ctx.variavel.getText());
-			stringDeclaradas.put(ctx.variavel.getText(), ctx.expr.getText());
+			//um ident nunca começa com aspas.
+			if(stringDeclaradas.containsKey(ctx.expr.getText())){
+				//String a = "ola"; String b = a; Atribuir valor da string de a, em b.
+				stringDeclaradas.put(ctx.variavel.getText(), stringDeclaradas.get(ctx.expr.getText()));
+				
+			}else{
+				stringDeclaradas.put(ctx.variavel.getText(), ctx.expr.getText());
+			}
+				
 			//ldc do tamanho da string para futura comparacoes
 			
 			retorno = "ldc "+ ctx.expr.getText().length()+"\n" +
@@ -256,8 +271,6 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 				pilhaTipos.pop();
 				pilhaTipos.push("int");
 				//obter o tamanho a string da dir e da esquerda.
-				int tamanhoS2 = tamanhoStrings.pop();
-				int tamanhoS1 = tamanhoStrings.pop();
 				
 				//retorno += "\n pop \n";
 				//retorno += "\n pop \n";				
@@ -314,8 +327,8 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 				pilhaTipos.pop();
 				pilhaTipos.pop();
 				pilhaTipos.push("int");
-				int tamanhoS2 = tamanhoStrings.pop();
-				int tamanhoS1 = tamanhoStrings.pop();
+				/*int tamanhoS2 = tamanhoStrings.pop();
+				int tamanhoS1 = tamanhoStrings.pop();*/
 				//retorno += "\n pop \n";
 				//retorno += "\n pop \n";				
 				return retorno + "\n" + "if_icmpgt " + "Label"
@@ -434,8 +447,6 @@ public class MyVisitor extends GramaticaBaseVisitor<String> {
 				pilhaTipos.pop();
 				pilhaTipos.pop();
 				pilhaTipos.push("int");
-				int tamanhoS1 = tamanhoStrings.pop();
-				int tamanhoS2 = tamanhoStrings.pop();
 				return retorno + "\n" + "if_icmpeq " + "Label"
 				+ (temp - 2) + "\n"// if topo igual 0 va para label true
 				// Label false

@@ -100,7 +100,7 @@ public class CompilerTest {
 	@DataProvider
 	public Object[][] provide_code_exceptedText(){
 		return new Object[][]{
-			
+			 
 				{"println(1+2);", "3"+System.lineSeparator()},
 				{"println(1);", "1"+System.lineSeparator()},
 				{"println(1+2+42);", "45"+System.lineSeparator()},
@@ -163,8 +163,9 @@ public class CompilerTest {
 			
 				//WHILE LPAREN expressao RPAREN comando;
 				{"int a = 0;while(a!=3){a = a + 1;println(a);}println(322);", "1\n2\n3\n322"+System.lineSeparator()},
-				{"String a = \"teste\";String s = \"Hello Compiler!\";println(a==a);", "1"+System.lineSeparator()},
+				{"String a = \"teste\";String s = \"aaaaa\";println(a>s);", "0"+System.lineSeparator()},
 				{"println(\"abbbb\"<\"abb\");", "0"+System.lineSeparator()},
+				{"String a; a=\"teste\";String s= a;print(s);", "teste"+System.lineSeparator()},
 			
 				
 				//teste de comparacao de strings <
@@ -180,7 +181,7 @@ public class CompilerTest {
 				{"if(1==1){println(4<3.1);}else{println(322);}", "0"+System.lineSeparator()},
 				{"if(1==2){println(1<3.1);}else{println(322);}", "322"+System.lineSeparator()},
 				{"int foo; foo=42; println(foo);", "42"+System.lineSeparator()},
-				
+				 
 				{"int foo; foo = 42; println(foo+2);", "44"+System.lineSeparator()},
 				{"int a; int b; a = 2; b = 5; println(a+b);", "7"+System.lineSeparator()},				
 				{"int foo=42; println(foo);", "42"+System.lineSeparator()},
